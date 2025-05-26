@@ -27,6 +27,14 @@ export default defineConfig({
     },
     server: {
         proxy: {
+            "/gs/connect/": {
+                target: "ws://localhost:3000",
+                changeOrigin: true,
+            },
+            "/gs/": {
+                target: "http://localhost:3000",
+                changeOrigin: true,
+            },
             "/wsgs": {
                 target: "ws://localhost:3000",
                 changeOrigin: true,
