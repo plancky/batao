@@ -1,7 +1,5 @@
 // --- Drawing Logic ---
-import { normalize } from "node:path";
-
-import { MessageDataTypes } from "@/server-types/types";
+import { WSMessageTypes } from "@/server-types/constants";
 
 import { type DotPathObj, type PathObj, type SegmentPathObject } from "./types/draw";
 import { PathTypes, type DrawingBoardInstanceType } from "./types/types";
@@ -38,7 +36,7 @@ export function startDrawingHandler(this: DrawingBoardInstanceType, event: Mouse
 
     // Send start draw event to server
     sendWebSocketMessage(this.socket!, {
-        type: MessageDataTypes.draw,
+        type: WSMessageTypes.CANVAS_DRAW,
         ...pathObj,
     });
 }
@@ -75,7 +73,7 @@ export function mouseMoveHandler(this: DrawingBoardInstanceType, event: MouseTou
     [this.drawingState.lastX, this.drawingState.lastY] = [coords.x, coords.y];
 
     sendWebSocketMessage(this.socket!, {
-        type: MessageDataTypes.draw,
+        type: WSMessageTypes.CANVAS_DRAW,
         ...pathObj,
     });
 }
@@ -89,7 +87,7 @@ export function stopDrawingHandler(this: DrawingBoardInstanceType, event: MouseT
     const ctx = this.ctx as CanvasRenderingContext2D;
 
     sendWebSocketMessage(this.socket!, {
-        type: MessageDataTypes.save_canvas_image_data,
+        type: WSMessageTypes.CANVAS_SAVE_PATHS,
         pathsArray: btoa(JSON.stringify(this.drawingState.pathsArray)),
         //imageData: canvas.toDataURL("image/jpeg", 0.6),
     });

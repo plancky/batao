@@ -1,0 +1,157 @@
+/* src/Chatroom.css */
+.chatroom {
+    display: flex;
+    flex-direction: column;
+    max-width: 600px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+    font-family: sans-serif;
+    background-color: #f9f9f9;
+}
+
+.chatroom-header {
+    padding: 10px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chatroom-header h2 {
+    margin: 0;
+    font-size: 1.2em;
+}
+
+.chatroom-header .user-id {
+    font-size: 0.8em;
+    opacity: 0.9;
+}
+
+.status {
+    font-size: 0.8em;
+    padding: 3px 8px;
+    border-radius: 10px;
+}
+
+.status.connected {
+    background-color: #28a745;
+    color: white;
+}
+
+.status.disconnected {
+    background-color: #dc3545;
+    color: white;
+}
+
+.messages {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Space between messages */
+    background-color: #ffffff;
+}
+
+.no-messages {
+    text-align: center;
+    color: #888;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.message {
+    padding: 8px 12px;
+    border-radius: 15px;
+    max-width: 70%;
+    word-wrap: break-word; /* Ensure long words break */
+}
+
+.message .sender {
+    font-weight: bold;
+    display: block;
+    font-size: 0.8em;
+    margin-bottom: 3px;
+    color: #555;
+}
+
+.message .text {
+    margin-right: 10px; /* Space before timestamp */
+}
+
+.message .timestamp {
+    font-size: 0.7em;
+    color: #888;
+    margin-left: 5px; /* Small space after text */
+    display: inline-block; /* Keep on same line if space allows */
+    float: right; /* Try to align right within the bubble */
+    clear: both; /* Prevent floating issues */
+    margin-top: 5px;
+}
+
+/* Styles for messages sent by the current user */
+.message.sent {
+    background-color: #dcf8c6;
+    align-self: flex-end; /* Align to the right */
+    text-align: right; /* Align text inside to the right */
+}
+.message.sent .sender {
+    /* Optional: Hide sender for own messages */
+    /* display: none; */
+    color: #075e54; /* WhatsApp-like green */
+}
+.message.sent .timestamp {
+    float: right;
+}
+
+/* Styles for messages received from others */
+.message.received {
+    background-color: #e9e9eb;
+    align-self: flex-start; /* Align to the left */
+    text-align: left;
+}
+.message.received .sender {
+    color: #007bff; /* Or another distinct color */
+}
+.message.received .timestamp {
+    float: right;
+}
+
+.message-input {
+    display: flex;
+    padding: 10px;
+    border-top: 1px solid #ccc;
+    background-color: #f0f0f0;
+}
+
+.message-input input {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    margin-right: 10px;
+}
+
+.message-input input:disabled {
+    background-color: #e9ecef;
+    cursor: not-allowed;
+}
+
+.message-input button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.message-input button:hover {
+    background-color: #0056b3;
+}
+
+.message-input button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}

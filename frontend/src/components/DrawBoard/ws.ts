@@ -1,5 +1,8 @@
+import { WSMessageTypes } from "@/server-types/constants";
 import { MessageData } from "@/server-types/messages";
-import { MessageDataTypes } from "@/server-types/types";
+
+import { PathObj } from "./types/draw";
+import { DrawingBoardInstanceType } from "./types/types";
 
 // --- WebSocket Connection ---
 export function connectWebSocket(this: any) {
@@ -22,8 +25,8 @@ export function connectWebSocket(this: any) {
     };
 
     socket.onmessage = (event: any) => {
-        try { 
-            console.debug("Message received:", event.data, typeof event.data);
+        try {
+            // console.debug("Message received:", event.data, typeof event.data);
             const data = JSON.parse(event.data);
             handleWebSocketMessage.call(this, data);
         } catch (error) {
@@ -49,24 +52,22 @@ export function connectWebSocket(this: any) {
 }
 
 // --- Handle Incoming WebSocket Messages ---
-export function handleWebSocketMessage(this: any, data: MessageData) {
+export function handleWebSocketMessage(this: DrawingBoardInstanceType, data: MessageData) {
     const { drawPathObj, clearCanvasLocal } = this;
     switch (data.type) {
-        case MessageDataTypes.draw:
+        case WSMessageTypes.CANVAS_DRAW:
+            const { type, ...pathObj } = data;
             // Draw segment received from another user
-            this.drawingState.pathsArray.push(data);
-            drawPathObj(data);
+            // console.debug(pathObj);
+            this.drawingState.pathsArray.push(pathObj);
+            drawPathObj.call(this, pathObj as PathObj, true);
             break;
-        case MessageDataTypes.start_draw:
-            // Draw initial dot received from another user
-            this.drawingState.pathsArray.push(data);
-            drawPathObj(data);
-            break;
-        case MessageDataTypes.clear:
+        case WSMessageTypes.CANVAS_CLEAR:
             // Clear canvas as requested by another user
             clearCanvasLocal.call(this);
+            this.drawingState.pathsArray = [];
             break;
-        case MessageDataTypes.initial_state:
+        case WSMessageTypes.CANVAS_INITIAL_STATE:
             const ctx = this.ctx as CanvasRenderingContext2D;
             const canvas = this.canvas as HTMLCanvasElement;
             const {

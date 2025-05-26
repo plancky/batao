@@ -27,6 +27,7 @@
     "@tanstack/react-router": "^1.116.0",
     "@tanstack/router-devtools": "^1.116.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "vite-plugin-svgr": "^4.3.0"
   }
 }

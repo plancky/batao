@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 
-import { DrawingBoard } from "./drawBoard/main";
+import { DrawingBoard } from "./main";
 
-export default function DrawBoard() {
+export default function DrawBoard({ ...props }) {
     useEffect(() => {
         const handleContentLoaded = () => {
             const drawAPI = new DrawingBoard(document.querySelector("#drawContainer")!);
@@ -23,16 +23,19 @@ export default function DrawBoard() {
 
     return (
         <>
-            <div id="drawContainer" className="flex flex-col w-full max-h-screen flex-1 py-10">
-                <h1 className="text-2xl font-semibold mb-4 text-gray-200 flex justify-between">
-                    Drawing Pad
+            <div
+                id="drawContainer"
+                className="flex flex-col w-full max-h-screen flex-1 basis-4/5 gap-5"
+            >
+                <div className="w-full bg-gray-900 relative aspect-video #h-full #flex-1 rounded-lg shadow-lg overflow-hidden border border-gray-600">
+                    <canvas id="drawingCanvas" className="rounded-lg"></canvas>
                     <div
-                        className="h-5 w-5 block [&.connected]:bg-green-400 bg-red-500 rounded-full"
+                        className="h-5 w-5 block [&.connected]:bg-green-400 bg-red-500 rounded-full absolute right-5 top-5"
                         id="statusIndicator"
                     ></div>
-                </h1>
+                </div>
 
-                <div className="controls w-full bg-gray-700 p-4 rounded-lg shadow-md mb-4 flex flex-wrap items-center justify-center gap-3 md:gap-4  border border-gray-600">
+                <div className="controls relative w-full bg-gray-700 p-4 rounded-lg shadow-md flex flex-wrap items-center justify-center gap-3 md:gap-4  border border-gray-600">
                     <div className="flex gap-2 w-full items-center flex-wrap justify-center">
                         <span className="text-sm font-medium text-gray-300 mr-2">Color:</span>
                         <button
@@ -91,6 +94,7 @@ export default function DrawBoard() {
                             id="pencilSize"
                             min="1"
                             max="30"
+                            step="1"
                             value="5"
                             className="w-24 cursor-pointer appearance-none"
                         />
@@ -105,10 +109,6 @@ export default function DrawBoard() {
                     >
                         Clear
                     </button>
-                </div>
-
-                <div className="w-full bg-gray-900 aspect-video #h-full #flex-1 rounded-lg shadow-lg overflow-hidden border border-gray-600">
-                    <canvas id="drawingCanvas" className="rounded-lg"></canvas>
                 </div>
             </div>
         </>

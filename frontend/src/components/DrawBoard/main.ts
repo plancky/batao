@@ -1,4 +1,4 @@
-import { MessageDataTypes } from "@/server-types/types";
+import { WSMessageTypes } from "@/server-types/constants";
 
 import {
     drawDot,
@@ -45,7 +45,7 @@ export class DrawingBoard extends DrawingBoardInterface {
             clearButton: container.querySelector("#clearButton")!,
         };
 
-        const ws_url = new URL("/api", window.location.origin);
+        const ws_url = new URL("/wsgs", window.location.origin);
         ws_url.protocol = "ws";
         this.WEBSOCKET_URL = ws_url.toString();
     }
@@ -86,7 +86,7 @@ export class DrawingBoard extends DrawingBoardInterface {
             // empty local draw state
             this.drawingState.pathsArray = [];
             this.sendWebSocketMessage(this.socket!, {
-                type: MessageDataTypes.clear,
+                type: WSMessageTypes.CANVAS_CLEAR,
             });
         });
     };
@@ -161,8 +161,10 @@ export class DrawingBoard extends DrawingBoardInterface {
         } catch (e) {
             console.error("error occured while connecting...");
         }
-        // Resize canvas initially
-        this.resizeCanvas();
+        setTimeout(() => {
+            // Resize canvas initially
+            this.resizeCanvas();
+        }, 25);
         // Add event-listeners
         this.eventListeners();
         this.setupButtons();

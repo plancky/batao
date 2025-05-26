@@ -104,6 +104,10 @@
     grid-column: breakout-end / full-width-end;
 }
 
+@utility game-session-layout-xl {
+    grid-template-columns: [main-start] 75% [main-end right_sidebar-start] 25% [right_sidebar-end];
+}
+
 @layer base {
     nav#TableOfContents > ol {
         @apply flex flex-col gap-1 py-2;

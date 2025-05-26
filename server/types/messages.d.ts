@@ -1,6 +1,6 @@
-import { type MessageDataTypes } from "./types";
+import { type WSMessageTypes } from "./constants";
 
 export type MessageData = {
-    type: MessageDataTypes;
+    type: WSMessageTypes;
     [key: string]: any;
 };
