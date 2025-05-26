@@ -29,6 +29,13 @@ app.use("/*", async (c, next) => {
     return await corsMiddleware(c, next);
 });
 
+if (process.env.NODE_ENV == "development") {
+    app.post("/lobby-without-pass", async (c) => {
+        const session = SessionManager.createNewSession();
+        return c.json({ id: session.sessionId }, 200);
+    });
+}
+
 app.post("/lobby", async (c) => {
     const key = c.req.header("X-secret-key");
     if (key == undefined) {
@@ -39,11 +46,6 @@ app.post("/lobby", async (c) => {
     if (!isMatch) {
         return c.json({ error: "Wrong key" }, 404);
     }
-    await new Promise((res, rej) => {
-        setTimeout(() => {
-            res(null);
-        }, 1000);
-    });
     const session = SessionManager.createNewSession();
     return c.json({ id: session.sessionId }, 200);
 });
