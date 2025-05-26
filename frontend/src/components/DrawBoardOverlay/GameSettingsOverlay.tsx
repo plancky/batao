@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { GameConfig } from "$/server-types/server-msgs";
+import { WORD_LIST_CODES, WORD_LIST_NAMES } from "$/server-types/word-consts";
 import { SessionStates } from "$/session/constants";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -28,6 +29,7 @@ const selectVals = {
     rounds: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"] as const,
     hints: ["1", "2", "3", "4", "5"] as const,
     words: ["2", "3", "4", "5"] as const,
+    wordlist: Object.entries(WORD_LIST_NAMES),
 };
 
 const FormSchema = z.object({
@@ -35,6 +37,7 @@ const FormSchema = z.object({
     rounds: z.enum(selectVals.rounds),
     hints: z.enum(selectVals.hints),
     words: z.enum(selectVals.words),
+    wordlist: z.enum(WORD_LIST_CODES),
 });
 
 const GameConfigResolver = z.object({
@@ -42,6 +45,7 @@ const GameConfigResolver = z.object({
     rounds: z.coerce.number(),
     hints: z.coerce.number(),
     words: z.coerce.number(),
+    wordlist: z.enum(WORD_LIST_CODES),
 });
 
 export function GameSettingsOverlay() {
@@ -61,6 +65,7 @@ export function GameSettingsOverlay() {
             rounds: "3",
             hints: "2",
             words: "3",
+            wordlist: "astronomy"
         },
     });
 
@@ -207,6 +212,37 @@ export function GameSettingsOverlay() {
                                                     {selectVals.words.map((e) => (
                                                         <div key={`option_${e}`}>
                                                             <SelectItem value={e}>{e}</SelectItem>
+                                                        </div>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="wordlist"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <div className="flex w-full justify-between">
+                                            <FormLabel>Word List</FormLabel>
+                                            <Select
+                                                onValueChange={field.onChange}
+                                                defaultValue={field.value}
+                                            >
+                                                <FormControl>
+                                                    <SelectTrigger>
+                                                        <SelectValue placeholder="Select" />
+                                                    </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent className="border-secondary">
+                                                    {selectVals.wordlist.map(([code, label]) => (
+                                                        <div key={`option_${code}`}>
+                                                            <SelectItem value={code}>
+                                                                {label}
+                                                            </SelectItem>
                                                         </div>
                                                     ))}
                                                 </SelectContent>

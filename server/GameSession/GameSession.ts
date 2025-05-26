@@ -22,11 +22,6 @@ export class GameSessionImpl extends GameSession {
         this.state = SessionStates.WAITING;
         this.sessionId = this.generateSessionId();
         this.players = new Set();
-
-        this.config = {
-            rounds: 1,
-            turnTime: 60,
-        };
     }
 
     generateSessionId() {
@@ -153,7 +148,7 @@ export class GameSessionImpl extends GameSession {
         console.log("Game Config", gameConfig)
         this.changeState(SessionStates.INGAME);
         console.log("Starting the game....");
-        this.game.start.call(this.game);
+        await this.game.start.call(this.game);
     }
 
     getPlayerStates() {

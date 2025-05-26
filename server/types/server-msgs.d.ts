@@ -1,3 +1,5 @@
+import type { WordListCode } from "@/Word/types";
+
 import type { CanvasActionPayload } from "./canvas";
 import type { ChatInputPayload } from "./chat";
 import { CanvasActions, ClientActionTypes, ServerActionTypes } from "./constants";
@@ -20,6 +22,7 @@ type GameConfig = {
     rounds?: number;
     hints?: number;
     words?: number;
+    wordlist?: WordListCode;
 };
 
 export type WordSelServerAction = {

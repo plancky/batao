@@ -82,7 +82,7 @@ export class Turn extends EventEmitter<Events> {
 
         this.ON("TURN_START", (e) => {
             // pick words
-            this.guessWordsSelectionList = this.pickGuessWords(config.wordCount, false);
+            this.guessWordsSelectionList = this.game.wl.pickGuessWords(config.wordCount, false);
             console.log("Turn", this.artist.getMetadata());
             console.log("Turn has started..", this.guessWordsSelectionList);
             // update artist state
@@ -287,39 +287,6 @@ export class Turn extends EventEmitter<Events> {
             deltaPoints: e.deltaPoints,
             accuracy: e.tries ? (1 / e.tries) * 100 : null,
         }));
-    }
-
-    /**
-     *
-     * @param n  number of words to be picked
-     * @param customList the list used for picking up numbers
-     * @param repetition If words are allowed to be repeated within the same Game
-     */
-    pickGuessWords(n: number, repetition: boolean = false, customList?: string[]): string[] {
-        const wordlist = customList ?? this.game.guessWords;
-        const exemptionList = !repetition ? this.game.pickedWords : [];
-        const words = [];
-        for (let i = 0; i < n; i++) {
-            const word = this.pickWord(wordlist!, exemptionList);
-            words.push(word!);
-            this.game.pickedWords.push(word!);
-            wordlist.splice(wordlist.indexOf(word!), 1);
-        }
-        return words;
-    }
-
-    /**
-     *
-     * @param n  number of words to be picked
-     * @param wordsList the list used for picking up numbers
-     * @param exemptions re-pick if the word picked is in the exemption list
-     */
-    pickWord(wordsList: string[], exemptions: string[] = []) {
-        for (let i = 0; i < 10; i++) {
-            const word = getRandomElement(wordsList);
-            if (!exemptions.includes(word!)) return word;
-        }
-        throw new Error("Cannot find a new word from the given list.");
     }
 
     // proxy methods for on and emit, they just extend the exiting behaviour and do not alter it in any way

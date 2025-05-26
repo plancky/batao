@@ -5,12 +5,14 @@ import type { Player } from "@/Player/Player";
 import type { CanvasActionPayload } from "@/types/canvas";
 import type { ChatInputPayload } from "@/types/chat";
 import type { GameConfig } from "@/types/server-msgs";
+import { WordList } from "@/Word/WordList";
 
 import { Clock } from "./Clock";
 import type { GameState } from "./GameStates/State";
 import { Waiting } from "./GameStates/Waiting";
 import { Round } from "./Round";
 import { Turn } from "./Turn";
+import type { WordListCode } from "@/Word/types";
 
 type Events = {
     GAME_STATE_UPDATE: [any];
@@ -22,7 +24,7 @@ type Events = {
 
 export class Game extends EventEmitter<Events> {
     // (TEST): words dictionary to pick words from.
-    guessWords!: string[];
+    wl!: WordList;
     // Config of the game set by the owner
     config!: {
         rounds: number;
@@ -30,6 +32,7 @@ export class Game extends EventEmitter<Events> {
         hints: number;
         wordCount: number;
         customWords?: string[];
+        wordlist: WordListCode;
     };
 
     // clock
@@ -56,13 +59,15 @@ export class Game extends EventEmitter<Events> {
 
     constructor(session: GameSession, players: Set<Player>, config: GameConfig) {
         super();
-        this.guessWords = ["cat", "dog", "neanderthal", "gunda", "not-like-us"];
         this.config = {
             rounds: config?.rounds ?? 3,
             drawtime: config?.drawtime ?? 60,
             wordCount: config?.words ?? 3,
             hints: config?.hints ?? 3,
+            wordlist: config.wordlist ?? "astronomy",
         };
+
+        this.wl = new WordList(this.config.wordlist);
 
         this.session = session;
         this.players = players;
@@ -73,7 +78,8 @@ export class Game extends EventEmitter<Events> {
         this.on("CHAT_INPUT", this.handleChatInput);
     }
 
-    start() {
+    async start() {
+        await this.wl.readWordlist();
         // broadcast gameState to players
         this.emit("GAME_START");
         this.runNextRound();
