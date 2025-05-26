@@ -1,12 +1,15 @@
-import type { GameStates } from "@/Game/constants";
+import type { GameStates } from "@/types/game-constants";
 import type { SessionStates } from "@/GameSession/constants";
 
 import type { CanvasActionPayload } from "./canvas";
 import type { ChatMessage } from "./chat";
 import { CanvasActions, ClientActionTypes, ServerActionTypes } from "./constants";
-import type { PlayerMetadata, PlayerState as PlayerMetadata } from "./player";
+import type { PlayerMetadata, PlayerState as PlayerMetadata, PlayerState } from "./player";
+import type { GameStateUpdatePayload } from "./game-state";
+import type { letterObj } from "../Word/Word";
 
 export type ClientAction =
+    | PlayersInfoUpdateClientAction
     | PlayersStateUpdateClientAction
     | GameStateUpdateClientAction
     | SessionStateUpdateClientAction
@@ -15,7 +18,8 @@ export type ClientAction =
     | PlayerJoinedClientAction
     | PlayerLeftClientAction
     | OwnerChangeClientAction
-    | IsArtistClientAction
+    | WordOptionsClientAction
+    | WordClientAction
     | PlayerIsOwnerClientAction
     | ClockClientAction
     | ChatMsgClientAction;
@@ -34,9 +38,7 @@ export type ConnectedClientAction = {
 
 export type GameStateUpdateClientAction = {
     type: ClientActionTypes.GAME_STATE_UPDATE;
-    payload: {
-        state: GameStates;
-    };
+    payload: GameStateUpdatePayload;
 };
 
 export type SessionStateUpdateClientAction = {
@@ -66,10 +68,19 @@ export type PlayerIsOwnerClientAction = {
     payload: PlayerMetadata;
 };
 
-export type IsArtistClientAction = {
-    type: ClientActionTypes.PLAYER_IS_ARTIST;
+export type WordOptionsClientAction = {
+    type: ClientActionTypes.WORD_OPTIONS;
     payload: {
         words: string[];
+    };
+};
+
+export type letterObj = letterObj;
+
+export type WordClientAction = {
+    type: ClientActionTypes.WORD;
+    payload: {
+        word: letterObj[];
     };
 };
 
@@ -88,12 +99,20 @@ export type ChatMsgClientAction = {
     payload: ChatMessage;
 };
 
-// Payload types
 interface PlayersInfoUpdatePayload {
     players: PlayerMetadata[];
 }
 
-export type PlayersStateUpdateClientAction = {
+export type PlayersInfoUpdateClientAction = {
     type: ClientActionTypes.PLAYERS_INITIAL_INFO_UPDATE;
     payload: PlayersInfoUpdatePayload;
+};
+
+interface PlayersStateUpdatePayload {
+    players: PlayerState[];
+}
+
+export type PlayersStateUpdateClientAction = {
+    type: ClientActionTypes.PLAYERS_STATE_UPDATE;
+    payload: PlayersStateUpdatePayload;
 };

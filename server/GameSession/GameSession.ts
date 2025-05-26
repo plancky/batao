@@ -159,6 +159,10 @@ export class GameSessionImpl extends GameSession {
         // finally decides to stop and broadcasts the final_scores
     }
 
+    getPlayerStates() {
+        return [...this.players].map((p) => p.getState());
+    }
+
     broadcastMessageToAllPlayers(data: any, exempt?: Set<Player> | Player) {
         let players = this.players;
         if (exempt) {

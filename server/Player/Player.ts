@@ -6,7 +6,12 @@ import type { GameSessionImpl } from "@/GameSession/GameSession";
 import type { GameSession } from "@/GameSession/types";
 import type { CanvasActionPayload } from "@/types/canvas";
 import type { ChatInputPayload, ChatMessage } from "@/types/chat";
-import type { CanvasClientAction, ChatMsgClientAction, ClientAction } from "@/types/client-msgs";
+import type {
+    CanvasClientAction,
+    ChatMsgClientAction,
+    ClientAction,
+    PlayersStateUpdateClientAction,
+} from "@/types/client-msgs";
 import {
     ChatMessageClass,
     ChatMessageTypes,
@@ -36,12 +41,13 @@ export class Player extends EventEmitter<Events> {
         return this._name;
     }
 
-    private score: number = 0;
+    private _score: number = 0;
     private session!: GameSessionImpl;
     private isOwner: boolean = false;
 
-    isArtist: boolean = false;
-    hasGuessed: boolean = false;
+    protected _isArtist: boolean = false;
+
+    protected _hasGuessed: boolean = false;
 
     constructor(session: GameSessionImpl, name: string, isOwner?: boolean) {
         super();
@@ -61,6 +67,33 @@ export class Player extends EventEmitter<Events> {
         return randomUUIDv7("hex");
     }
 
+    get score() {
+        return this._score;
+    }
+
+    set score(val: number) {
+        this._score = val;
+        this.stateUpdateBroadcast();
+    }
+
+    set isArtist(val: boolean) {
+        this._isArtist = val;
+        this.stateUpdateBroadcast();
+    }
+
+    get isArtist() {
+        return this._isArtist;
+    }
+
+    set hasGuessed(val: boolean) {
+        this._hasGuessed = val;
+        this.stateUpdateBroadcast();
+    }
+
+    get hasGuessed() {
+        return this._hasGuessed;
+    }
+
     removeOwner() {
         this.isOwner = false;
     }
@@ -70,13 +103,25 @@ export class Player extends EventEmitter<Events> {
     }
 
     getMetadata(): PlayerMetadata {
-        const { id, _name: name, score, isOwner, join_time } = this;
+        const { id, _name: name, _score: score, isOwner, join_time } = this;
         return {
             id,
             name,
             score,
             isOwner,
             join_time,
+        };
+    }
+
+    getState(): PlayerState {
+        const { id, _name: name, _score: score, isArtist, isOwner, hasGuessed } = this;
+        return {
+            id,
+            name,
+            score,
+            isArtist,
+            hasGuessed,
+            isOwner,
         };
     }
 
@@ -94,20 +139,17 @@ export class Player extends EventEmitter<Events> {
         } as ChatMessage;
     }
 
-    getState(): PlayerState {
-        const { id, _name: name, score, isArtist, isOwner } = this;
-        return {
-            id,
-            name,
-            score,
-            isArtist,
-            isOwner,
-        };
+    stateUpdateBroadcast() {
+        this.session.broadcastMessageToAllPlayers({
+            type: ClientActionTypes.PLAYERS_STATE_UPDATE,
+            payload: {
+                players: [this.getState()],
+            },
+        } as PlayersStateUpdateClientAction);
     }
-
     sendMsg(data: ClientAction) {
         try {
-            this.ws.send(JSON.stringify(data));
+            if (this?.ws?.readyState == WebSocket.OPEN) this.ws.send(JSON.stringify(data));
         } catch (err) {
             console.debug("Error: sending message to client:", err);
         }
@@ -116,9 +158,11 @@ export class Player extends EventEmitter<Events> {
     onOpen(evt: Event, ws: WSContext<Bun.ServerWebSocket<any>>) {
         console.log("connected!");
         this.ws = ws;
+        /*
         if (ws.raw) {
-            ws.raw.data.x = 1;
+            ws.raw.data.id = this.id;
         }
+        */
 
         // send the player important credentials confirming its identity
         this.sendMsg({
@@ -133,7 +177,8 @@ export class Player extends EventEmitter<Events> {
     onMessage(evt: MessageEvent<WSMessageReceive>, ws: WSContext<Bun.ServerWebSocket<any>>) {
         const message = evt.data.toString();
 
-        const x = ws.raw?.data.x;
+        // bun ws context
+        //const x = ws.raw?.data.x;
         try {
             // Attempt to parse the message (assuming JSON)
             const data: ServerAction = JSON.parse(message);
@@ -145,7 +190,7 @@ export class Player extends EventEmitter<Events> {
                     if (this.isOwner) this.emit("START_GAME", data?.payload);
                     break;
                 case ServerActionTypes.SEL_WORD:
-                    if (this.isArtist) this.emit("WORD_SELECTED", data?.payload);
+                    if (this._isArtist) this.emit("WORD_SELECTED", data?.payload);
                     break;
                 case ServerActionTypes.CANVAS_ACTION:
                     if (game) game.emit("CANVAS_ACTION", this, data.payload);

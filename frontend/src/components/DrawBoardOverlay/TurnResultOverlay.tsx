@@ -1,11 +1,10 @@
-import { GameStates } from "$/game/constants";
-import { ServerActionTypes } from "$/server-types/constants";
-import { ServerAction } from "$/server-types/server-msgs";
+import { GameStates } from "$/server-types/game-constants";
 
-import { useGameState, useWordSelWords } from "@/lib/hooks";
+import { useGameState, useTurnResult, useWordSelWords } from "@/lib/hooks";
 
 import { Button } from "../ui/button";
 import { useWS } from "../ws-provider";
+import { DrawBoardOverlayContainer } from "./DrawBoardOverlay";
 
 export function TurnResultOverlay() {
     const {
@@ -14,33 +13,26 @@ export function TurnResultOverlay() {
     } = useWS();
 
     const gameState = useGameState();
-    const show = gameState === GameStates.WORD_SEL;
-    const words = useWordSelWords();
+    const show = gameState === GameStates.RESULT;
+    const { result } = useTurnResult();
 
     return (
         <>
-            <div className={`absolute h-full w-full inset-0 z-10 ${show ? "flex" : "hidden"}`}>
-                <ul className="flex justify-center w-full items-center gap-5">
-                    {words.map((word, index) => (
-                        <li key={`word_${index}`}>
-                            <Button
-                                variant={"outline"}
-                                className="cursor-pointer"
-                                onClick={() => {
-                                    sendMessage!({
-                                        type: ServerActionTypes.SEL_WORD,
-                                        payload: {
-                                            word,
-                                        },
-                                    } as ServerAction);
-                                }}
-                            >
-                                {word}
-                            </Button>
-                        </li>
-                    ))}
-                </ul>
-            </div>
+            <DrawBoardOverlayContainer show={show}>
+                <div className="flex h-full w-full items-center justify-center">
+                    <table className="table-auto">
+                        <tbody className="">
+                            {result.map((line, index) => (
+                                <tr key={`line_${index}`} className="">
+                                    <td>{line.name}</td>
+                                    <td>{line.deltaPoints}</td>
+                                    <td>{line.accuracy ? `${line.accuracy}%` : `--`}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </DrawBoardOverlayContainer>
         </>
     );
 }

@@ -62,12 +62,15 @@ export default function ChatBoard({ ...props }: Props) {
                 </div>
 
                 <div id="messages" className="">
-                    {messages.length === 0 && (
+                    {messages.length === 0 ? (
                         <p className="no-messages">No messages yet. Start chatting!</p>
+                    ) : (
+                        <ul>
+                            {messages.map((msg, index) => (
+                                <Message msg={msg} userId={uid} />
+                            ))}
+                        </ul>
                     )}
-                    {messages.map((msg, index) => (
-                        <Message msg={msg} userId={uid} />
-                    ))}
                     {/* Empty div to target for scrolling */}
                     <div ref={messagesEndRef} />
                 </div>

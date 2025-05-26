@@ -2,7 +2,7 @@ import { RefObject } from "react";
 
 import AdminPannel from "./AdminPannel";
 import DrawBoard from "./DrawBoard/DrawBoard";
-import DrawingInfoBar from "./DrawingInfoBar";
+import DrawingInfoBar from "./DrawingInfoBar/DrawingInfoBar";
 
 interface Props extends React.HTMLAttributes<HTMLElement> {}
 

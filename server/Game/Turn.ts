@@ -2,10 +2,14 @@ import EventEmitter from "node:events";
 
 import type { GameSession } from "@/GameSession/types";
 import type { Player } from "@/Player/Player";
-import type { IsArtistClientAction } from "@/types/client-msgs";
+import type { WordClientAction, WordOptionsClientAction } from "@/types/client-msgs";
 import { ClientActionTypes } from "@/types/constants";
+import type { TurnResultObj, TurnResultStatePayload } from "@/types/game-state";
+import type { TurnPlayerScoreObj, TurnScoreObj } from "@/types/player";
+import { Word } from "@/Word/Word";
 
 import type { Game } from "./Game";
+import { Result } from "./GameStates/Result";
 import { getRandomElement } from "./utils";
 
 type Events = {
@@ -15,12 +19,27 @@ type Events = {
     WORD_SEL_END: [Turn];
     DRAW_START: [];
     DRAW_END: [];
+    HAS_GUESSED: [Player];
     RESULT_START: [];
     RESULT_END: [];
 };
 
 type onType = EventEmitter<Events>["on"];
 type emitType = EventEmitter<Events>["emit"];
+
+function playersArrToTurnScoreObj(players: Player[]) {
+    return players.reduce<TurnScoreObj>(
+        (obj, p) => ({
+            ...obj,
+            [p.id]: {
+                player: p,
+                deltaPoints: 0,
+                tries: 0,
+            },
+        }),
+        {},
+    );
+}
 
 export class Turn extends EventEmitter<Events> {
     private game!: Game;
@@ -31,6 +50,10 @@ export class Turn extends EventEmitter<Events> {
     guessWordsSelectionList!: string[];
     guessWord!: string;
     gPlayers: Set<Player> = new Set();
+    guessCounter: number = 0;
+    scoresObj: TurnScoreObj = {};
+    resultObj: TurnResultObj[] = [];
+    wordAPI!: Word;
 
     constructor(artist: Player, session: GameSession, game: Game, players: Set<Player>) {
         super();
@@ -39,6 +62,7 @@ export class Turn extends EventEmitter<Events> {
         this.artist = artist;
         this.players = players;
         this.session = session;
+        this.scoresObj = playersArrToTurnScoreObj([...this.players]);
         this.setup();
     }
 
@@ -47,22 +71,25 @@ export class Turn extends EventEmitter<Events> {
         const clk = game.clock;
         const wordSelDurr = 20;
         game.state.setTurn.call(game.state, this);
+        const moveToNextState = () => {
+            game.changeState.call(game, game.state.nextState.call(game.state));
+        };
 
         this.ON("TURN_START", (e) => {
             this.guessWordsSelectionList = this.pickGuessWords(3, false);
             console.log("Turn has started..", this.guessWordsSelectionList);
             this.artist.isArtist = true;
             e.artist.sendMsg({
-                type: ClientActionTypes.PLAYER_IS_ARTIST,
+                type: ClientActionTypes.WORD_OPTIONS,
                 payload: {
                     words: this.guessWordsSelectionList,
                 },
-            } as IsArtistClientAction);
+            } as WordOptionsClientAction);
             this.EMIT("WORD_SEL_START", this);
         });
 
         this.ON("WORD_SEL_START", (turn) => {
-            game.changeState.call(game, game.state.nextState.call(game.state));
+            moveToNextState();
             const removeWordSelListener = clk.onTick(
                 (tick: number) => {
                     const timer_value = wordSelDurr - tick;
@@ -73,6 +100,10 @@ export class Turn extends EventEmitter<Events> {
                 },
                 [
                     (tick: number) => {
+                        // select a word at random if the artist fails to select one
+                        if (!this.guessWord) {
+                            this.guessWord = getRandomElement(this.guessWordsSelectionList);
+                        }
                         this.EMIT("WORD_SEL_END", this);
                     },
                     wordSelDurr,
@@ -95,6 +126,16 @@ export class Turn extends EventEmitter<Events> {
 
         this.ON("WORD_SEL_END", (turn) => {
             console.log("Word Select ended", this.guessWord);
+            this.wordAPI = new Word(this.guessWord);
+
+            this.wordAPI.broadcastWordUpdate(this.session);
+            this.artist.sendMsg({
+                type: ClientActionTypes.WORD,
+                payload: {
+                    word: Object.values(this.wordAPI.wordObj),
+                },
+            } as WordClientAction);
+
             // cleanup after word select
             this.artist.removeAllListeners("WORD_SELECTED");
             this.EMIT("DRAW_START");
@@ -102,7 +143,7 @@ export class Turn extends EventEmitter<Events> {
 
         const drawDurr = this.game.config.turnDuration;
         this.ON("DRAW_START", () => {
-            game.changeState.call(game, game.state.nextState.call(game.state));
+            moveToNextState();
             const removeDrawTimer = clk.onTick(
                 (tick: number) => {
                     const timer_value = drawDurr - tick;
@@ -119,26 +160,105 @@ export class Turn extends EventEmitter<Events> {
                 ],
             );
             clk.startClock();
+            this.ON("HAS_GUESSED", (player) => {
+                this.guessCounter++;
+                this.calculateGuesserScore(player);
+                if (this.gPlayers.size == this.session.players.size - 1) {
+                    removeDrawTimer();
+                    this.EMIT("DRAW_END");
+                }
+            });
         });
 
         this.ON("DRAW_END", () => {
-            this.artist.isArtist = false;
+            this.calculateArtistScore(this.artist);
             this.EMIT("RESULT_START");
         });
 
+        const resultDurr = 10;
         this.ON("RESULT_START", () => {
-            this.game.changeState(this.game.state.nextState());
-            this.EMIT("TURN_END", this);
+            const resultState = new Result(game, this);
+            // set result on payload
+            resultState.altPayload = {
+                state: resultState.state,
+                result: this.getTurnResult(),
+            } as TurnResultStatePayload;
+
+            this.game.changeState(resultState);
+            this.updatePlayerScores();
+
+            const removeResultScreenTimer = clk.onTick(
+                (tick: number) => {
+                    const timer_value = resultDurr - tick;
+                    this.session.broadcastMessageToAllPlayers({
+                        type: ClientActionTypes.CLOCK_UPDATE,
+                        payload: { value: timer_value },
+                    });
+                },
+                [
+                    (tick: number) => {
+                        this.EMIT("TURN_END", this);
+                    },
+                    resultDurr,
+                ],
+            );
+            clk.startClock();
         });
 
         this.ON("TURN_END", () => {
-            this.game.changeState(this.game.state.nextState());
+            // cleanup before the next turn starts
+            this.wordAPI.cleanup();
+            this.wordAPI.broadcastWordUpdate(this.session);
+
+            this.artist.isArtist = false;
+            this.players.forEach((p) => {
+                p.hasGuessed = false;
+            });
+
+            moveToNextState();
         });
     }
 
     init(): void {
         console.log("Turn", this.artist.getMetadata());
         this.EMIT("TURN_START", this);
+    }
+
+    updatePlayerScores() {
+        Object.values(this.scoresObj).forEach((e) => {
+            e.player.score = e.player.score + e.deltaPoints;
+        });
+    }
+
+    calculateArtistScore(player: Player) {
+        const { id } = player;
+        const score = Math.max(this.guessCounter * 20, 0);
+        this.scoresObj[id] = {
+            player: player,
+            deltaPoints: score,
+            tries: 0,
+        };
+    }
+
+    calculateGuesserScore(player: Player) {
+        const { id } = player;
+        const { tries } = this.scoresObj[id]!;
+        const score = Math.max(500 - this.guessCounter * 10 - tries * 5, 0);
+        this.scoresObj[id]!.deltaPoints = score;
+    }
+
+    getTurnResult(): TurnResultObj[] {
+        // sort the scores
+        const resultArr = Object.values(this.scoresObj);
+        resultArr.sort((a, b) => {
+            return a.deltaPoints > b.deltaPoints ? -1 : 1;
+        });
+        // get a map
+        return resultArr.map((e) => ({
+            name: e.player.name,
+            deltaPoints: e.deltaPoints,
+            accuracy: e.tries ? (1 / e.tries) * 100 : null,
+        }));
     }
 
     /**

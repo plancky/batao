@@ -8,12 +8,11 @@ import type {
 } from "@/types/client-msgs";
 import { ChatMessageClass, ChatMessageTypes, ClientActionTypes } from "@/types/constants";
 
-import { GameStates } from "../constants";
+import { GameStates } from "../../types/game-constants";
 import type { Game } from "../Game";
 import type { Turn } from "../Turn";
 import { Result } from "./Result";
 import { GameState } from "./State";
-import { Waiting } from "./Waiting";
 
 export class Draw extends GameState {
     state = GameStates.DRAWING;
@@ -36,13 +35,21 @@ export class Draw extends GameState {
         const word = this.turn.guessWord;
         if (!player.isArtist) {
             if (!player.hasGuessed) {
-                if (text === word) {
-                    this.playerHasGuessed(player);
-                } else {
-                    this.session.broadcastMessageToAllPlayers({
-                        type: ClientActionTypes.CHAT_NEW_MESSAGE,
-                        payload: player.getChatMessage(text, timestamp, false),
-                    } as ChatMsgClientAction);
+                this.updateTries(player);
+                const cmpFlag = this.turn.wordAPI.compare(text);
+                switch (cmpFlag) {
+                    case 0:
+                        this.isClose(player);
+                        this.broadcastMsg(text, timestamp, player);
+                        break;
+                    case -1:
+                        this.broadcastMsg(text, timestamp, player);
+                        break;
+                    case 1:
+                        this.playerHasGuessed(player);
+                        break;
+                    default:
+                        break;
                 }
             } else {
                 this.session.broadcastMessage(this.turn.gPlayers, {
@@ -53,9 +60,24 @@ export class Draw extends GameState {
         }
     }
 
+    updateTries(player: Player) {
+        const scores = this.turn.scoresObj;
+        const id = player.id;
+        if (scores[id]) {
+            scores[id].tries += 1;
+        } else {
+            scores[id] = {
+                player: player,
+                deltaPoints: 0,
+                tries: 1,
+            };
+        }
+    }
+
     playerHasGuessed(player: Player) {
         this.turn.gPlayers.add(player);
         player.hasGuessed = true;
+        this.turn.EMIT("HAS_GUESSED", player);
         // Broadcast text message to everyone that the word has been guessed by the player
         this.session.broadcastMessageToAllPlayers({
             type: ClientActionTypes.CHAT_NEW_MESSAGE,
@@ -70,6 +92,27 @@ export class Draw extends GameState {
         } as ChatMsgClientAction);
         // Send the Player the Word
         // player.sendMsg({})
+    }
+
+    broadcastMsg(text: string, timestamp: string, player: Player) {
+        this.session.broadcastMessageToAllPlayers({
+            type: ClientActionTypes.CHAT_NEW_MESSAGE,
+            payload: player.getChatMessage(text, timestamp, false),
+        } as ChatMsgClientAction);
+    }
+
+    isClose(player: Player) {
+        player.sendMsg({
+            type: ClientActionTypes.CHAT_NEW_MESSAGE,
+            payload: {
+                type: ChatMessageTypes.ADMIN,
+                msg: {
+                    timestamp: new Date().toISOString(),
+                    cls: ChatMessageClass.ADMIN_YELLOW,
+                    text: `you are close!`,
+                },
+            },
+        } as ChatMsgClientAction);
     }
 
     nextState(): GameState {

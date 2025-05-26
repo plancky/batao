@@ -1,4 +1,6 @@
-import { RefObject, useEffect } from "react";
+import { RefObject, useEffect, useRef } from "react";
+
+import { useUserState } from "@/lib/hooks";
 
 import { DrawBoardOverlay } from "../DrawBoardOverlay/DrawBoardOverlay";
 import { useWS } from "../ws-provider";
@@ -11,11 +13,13 @@ export default function DrawBoard({ ...props }: Props) {
         ws: { raw: ws },
         isConnected,
     } = useWS();
+    const drawAPI = useRef<DrawingBoard | undefined>(undefined);
 
     useEffect(() => {
         const handleContentLoaded = () => {
-            const drawAPI = new DrawingBoard(document.querySelector("#drawContainer")!);
-            drawAPI.initialize(ws!.current);
+            drawAPI.current = new DrawingBoard(document.querySelector("#drawContainer")!);
+            drawAPI.current?.makeSpectator();
+            drawAPI.current?.initialize(ws!.current);
         };
 
         if (document.readyState !== "loading") {
@@ -30,13 +34,21 @@ export default function DrawBoard({ ...props }: Props) {
         };
     }, [ws]);
 
+    const {
+        data: { isArtist },
+    } = useUserState();
+
+    useEffect(() => {
+        if (isArtist) {
+            drawAPI.current?.makeArtist();
+        } else {
+            drawAPI.current?.makeSpectator();
+        }
+    }, [isArtist, drawAPI]);
 
     return (
         <>
-            <div
-                id="drawContainer"
-                className="flex flex-col w-full max-h-screen gap-5 "
-            >
+            <div id="drawContainer" className="flex flex-col w-full max-h-screen gap-5 ">
                 <div className="w-full bg-gray-900 relative aspect-video #h-full #flex-1 rounded-lg shadow-lg overflow-hidden border border-gray-600">
                     <DrawBoardOverlay />
                     <canvas
@@ -51,9 +63,9 @@ export default function DrawBoard({ ...props }: Props) {
                         */}
                 </div>
 
-                <div className="controls [.spectator_&]:hidden relative w-full bg-gray-700 p-4 rounded-lg shadow-md flex flex-wrap items-center justify-center gap-3 md:gap-4  border border-gray-600">
+                <div className="controls [.spectator_&]:hidden relative w-full bg-primary/15 p-4 rounded-lg shadow-md flex flex-wrap items-center justify-center gap-3 md:gap-4  border border-gray-600">
                     <div className="flex gap-2 w-full items-center flex-wrap justify-center">
-                        <span className="text-sm font-medium text-gray-300 mr-2">Color:</span>
+                        <span className="text-sm font-medium mr-2">Color:</span>
                         <button
                             className="color-button w-8 h-8 rounded-full border-2 border-gray-500 bg-white active"
                             data-color="white"

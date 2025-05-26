@@ -3,8 +3,9 @@ import type { Player } from "@/Player/Player";
 import type { CanvasActionPayload } from "@/types/canvas";
 import type { GameStateUpdateClientAction } from "@/types/client-msgs";
 import { ClientActionTypes } from "@/types/constants";
+import type { GameStateUpdatePayload } from "@/types/game-state";
 
-import type { GameStates } from "../constants";
+import type { GameStates } from "../../types/game-constants";
 import type { Game } from "../Game";
 import type { Turn } from "../Turn";
 
@@ -14,6 +15,8 @@ export abstract class GameState {
     session!: GameSession;
     turn!: Turn;
 
+    altPayload!: GameStateUpdatePayload;
+
     constructor(game: Game) {
         this.game = game;
         this.session = game.session;
@@ -22,7 +25,7 @@ export abstract class GameState {
     init(): void {
         this.session.broadcastMessageToAllPlayers({
             type: ClientActionTypes.GAME_STATE_UPDATE,
-            payload: {
+            payload: this.altPayload ?? {
                 state: this.state,
             },
         } as GameStateUpdateClientAction);

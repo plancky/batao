@@ -33,7 +33,7 @@ export default function AdminPannel({ ...props }: Props) {
         <>
             {sessionIsWaiting && isOwner && (
                 <div className="flex gap-5" {...props}>
-                    <Button onClick={reqStart}>Start</Button>
+                    <Button onClick={reqStart} className={"cursor-pointer"}>Start</Button>
                 </div>
             )}
         </>

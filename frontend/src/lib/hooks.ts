@@ -5,25 +5,29 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-import { GameStates } from "$/game/constants";
 import { ChatMessage } from "$/server-types/chat";
 import { essentialUserInfo } from "$/server-types/client-msgs";
-import { PlayerMetadata } from "$/server-types/player";
+import { GameStates } from "$/server-types/game-constants";
+import { TurnResultObj } from "$/server-types/game-state";
+import { PlayerMetadata, PlayerState } from "$/server-types/player";
 import { SessionStates } from "$/session/constants";
 
 import {
     GAME_STATE_QK,
     MESSAGES_QUERY_KEY,
-    PLAYERS_INFO_QK_NS,
+    playerInfoKeys,
+    playerStateKeys,
     SEL_WORDS_QK,
     SESSION_STATE_QK,
+    TURN_RESULTS_QK,
     USER_INFO_QUERY_KEY,
 } from "./constants/query_keys";
+import { AllPlayersStateQueryStore, PlayerStateQueryStore } from "./types/query_store";
 
 export function useEssentialUserInfo() {
     const { data: user_info = {} as essentialUserInfo } = useQuery({
         queryKey: USER_INFO_QUERY_KEY,
-        queryFn: () => {},
+        queryFn: () => ({}) as any,
         staleTime: Infinity,
     });
 
@@ -33,17 +37,57 @@ export function useEssentialUserInfo() {
 export function useUserInfo() {
     const { data: user_info = {} as essentialUserInfo } = useQuery({
         queryKey: USER_INFO_QUERY_KEY,
-        queryFn: () => {},
+        queryFn: () => ({}) as any,
         staleTime: Infinity,
     });
 
     const { data = {} as PlayerMetadata } = useQuery({
-        queryKey: [PLAYERS_INFO_QK_NS, user_info.id],
-        queryFn: () => {},
+        queryKey: playerInfoKeys.player(user_info.id),
+        queryFn: () => ({}) as any,
         staleTime: Infinity,
     });
 
     return { user_info, ...data };
+}
+
+export function usePlayerInfos() {
+    const { data = [] as PlayerMetadata[], ...otherProps } = useQuery({
+        queryKey: playerInfoKeys.ALL,
+        queryFn: () => [],
+        staleTime: Infinity,
+    });
+
+    return { data, ...otherProps };
+}
+
+export function usePlayerStates() {
+    const { data = {} as AllPlayersStateQueryStore, ...otherProps } = useQuery({
+        queryKey: playerStateKeys.ALL,
+        queryFn: () => ({}) as AllPlayersStateQueryStore,
+        staleTime: Infinity,
+    });
+
+    return { data, ...otherProps };
+}
+
+export function useUserState() {
+    const { data = {} as PlayerState, ...otherProps } = useQuery({
+        queryKey: playerStateKeys.user(),
+        queryFn: () => ({}) as PlayerState,
+        staleTime: Infinity,
+    });
+
+    return { data, ...otherProps };
+}
+
+export function usePlayerState(id: string) {
+    const { data = {} as PlayerState, ...otherProps } = useQuery({
+        queryKey: playerStateKeys.player(id),
+        queryFn: () => ({}) as PlayerState,
+        staleTime: Infinity,
+    });
+
+    return { data, ...otherProps };
 }
 
 export function useChatMessages() {
@@ -84,4 +128,14 @@ export function useWordSelWords() {
     });
 
     return words;
+}
+
+export function useTurnResult() {
+    const { data: result = [] as TurnResultObj[], ...props } = useQuery({
+        queryKey: TURN_RESULTS_QK,
+        queryFn: () => [] as TurnResultObj[],
+        staleTime: Infinity,
+    });
+
+    return { result, ...props };
 }

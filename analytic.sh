@@ -1,0 +1,1 @@
+find frontend/src server -name \*.ts* | xargs wc -l

@@ -1,13 +1,15 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 
-import { GameStates } from "$/game/constants";
 import { ServerActionTypes } from "$/server-types/constants";
+import { GameStates } from "$/server-types/game-constants";
 import { ServerAction } from "$/server-types/server-msgs";
+import clsx from "clsx";
 
-import { useGameState, useWordSelWords } from "@/lib/hooks";
+import { useGameState, usePlayerStates, useUserState, useWordSelWords } from "@/lib/hooks";
 
 import { Button } from "../ui/button";
 import { useWS } from "../ws-provider";
+import { DrawBoardOverlayContainer } from "./DrawBoardOverlay";
 
 export function WordSelOverlay() {
     const {
@@ -16,6 +18,10 @@ export function WordSelOverlay() {
     } = useWS();
 
     const gameState = useGameState();
+    const {
+        data: { isArtist },
+    } = useUserState();
+
     const show = gameState === GameStates.WORD_SEL;
     const words = useWordSelWords();
 
@@ -31,25 +37,40 @@ export function WordSelOverlay() {
         [isConnected],
     );
 
+    const { data } = usePlayerStates();
+    const memoizedArtist = useMemo(() => {
+        const artist = Object.values(data).find((p) => p.isArtist);
+        return artist!;
+    }, [data]);
+    const { name } = memoizedArtist ?? {};
+
     return (
         <>
-            <div className={`absolute h-full w-full inset-0 z-10 ${show ? "flex" : "hidden"}`}>
-                <ul className="flex justify-center w-full items-center gap-5">
-                    {words.map((word, index) => (
-                        <li key={`word_${index}`}>
-                            <Button
-                                variant={"outline"}
-                                className="cursor-pointer"
-                                onClick={() => {
-                                    selectWord(word);
-                                }}
-                            >
-                                {word}
-                            </Button>
-                        </li>
-                    ))}
-                </ul>
-            </div>
+            <DrawBoardOverlayContainer show={show}>
+                {isArtist ? (
+                    <>
+                        <ul className="flex w-full items-center justify-center gap-5">
+                            {words.map((word, index) => (
+                                <li key={`word_${index}`}>
+                                    <Button
+                                        variant={"outline"}
+                                        className="cursor-pointer"
+                                        onClick={() => {
+                                            selectWord(word);
+                                        }}
+                                    >
+                                        {word}
+                                    </Button>
+                                </li>
+                            ))}
+                        </ul>
+                    </>
+                ) : (
+                    <div className="flex h-full w-full items-center justify-center">
+                        <span>{`${name} is selecting a word.`}</span>
+                    </div>
+                )}
+            </DrawBoardOverlayContainer>
         </>
     );
 }

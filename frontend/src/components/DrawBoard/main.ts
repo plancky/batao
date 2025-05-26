@@ -1,4 +1,5 @@
-import { ServerActionTypes } from "$/server-types/constants";
+import { CanvasActions, ServerActionTypes } from "$/server-types/constants";
+import { ServerAction } from "$/server-types/server-msgs";
 
 import {
     drawDot,
@@ -28,7 +29,7 @@ export class DrawingBoard extends DrawingBoardInterface {
             lastY: 0,
             currentColor: "white",
             currentLineWidth: 5,
-            canvasBackgroundColor: "#36393f",
+            canvasBackgroundColor: "#82888f",
             pathsArray: [],
         };
 
@@ -51,12 +52,12 @@ export class DrawingBoard extends DrawingBoardInterface {
         this.WEBSOCKET_URL = ws_url.toString();
     }
 
-    protected makeSpectator() {
+    makeSpectator() {
         this.isSpectator = true;
         this.container.classList.add("spectator");
     }
 
-    protected makeArtist() {
+    makeArtist() {
         this.isSpectator = false;
         this.container.classList.remove("spectator");
     }
@@ -97,8 +98,11 @@ export class DrawingBoard extends DrawingBoardInterface {
             // empty local draw state
             this.drawingState.pathsArray = [];
             this.sendWebSocketMessage(this.socket!, {
-                type: ServerActionTypes.CANVAS_CLEAR,
-            });
+                type: ServerActionTypes.CANVAS_ACTION,
+                payload: {
+                    type: CanvasActions.CANVAS_CLEAR,
+                },
+            } as ServerAction);
         });
     };
 

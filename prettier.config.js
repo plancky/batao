@@ -17,9 +17,10 @@ module.exports = {
         "^@/hooks/(.*)$",
         "^@/components/ui/(.*)$",
         "^@/components/(.*)$",
+        "^\$/server-types/(.*)$",
         "",
         "^[./]",
     ],
     importOrderParserPlugins: ["typescript", "jsx", "decorators-legacy"],
-    plugins: ["@ianvs/prettier-plugin-sort-imports"],
+    plugins: ["@ianvs/prettier-plugin-sort-imports", "prettier-plugin-tailwindcss"],
 };

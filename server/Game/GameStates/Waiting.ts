@@ -4,7 +4,7 @@ import type { ChatInputPayload } from "@/types/chat";
 import type { CanvasClientAction, ChatMsgClientAction } from "@/types/client-msgs";
 import { ClientActionTypes } from "@/types/constants";
 
-import { GameStates } from "../constants";
+import { GameStates } from "../../types/game-constants";
 import type { Game } from "../Game";
 import type { Turn } from "../Turn";
 import { GameState } from "./State";

@@ -3,7 +3,7 @@ import { QueryClient } from "@tanstack/react-query";
 import { ClientAction } from "$/server-types/client-msgs";
 import { ClientActionTypes } from "$/server-types/constants";
 
-import { PLAYER_STATE_QK, SEL_WORDS_QK, USER_INFO_QUERY_KEY } from "./constants/query_keys";
+import { USER_INFO_QUERY_KEY } from "./constants/query_keys";
 import { playersInfoUpdateListener } from "./listeners/players-info";
 import { PlayerStateQueryStore } from "./types/query_store";
 

@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 import { ClientAction } from "$/server-types/client-msgs";
 
+import { useEssentialUserInfo } from "@/lib/hooks";
 import { gameStateUpdateListener } from "@/lib/listeners/game-state";
 import { playersStateUpdateListener } from "@/lib/listeners/players-state";
 
@@ -18,6 +19,9 @@ export function Game() {
         isConnected,
     } = useWS();
     const queryClient = useQueryClient();
+    const {
+        user_info: { id },
+    } = useEssentialUserInfo();
     useEffect(() => {
         if (addMessageEventListener) {
             console.log("attaching listeners");
@@ -27,7 +31,7 @@ export function Game() {
             });
             addMessageEventListener((event) => {
                 const data: ClientAction = JSON.parse(event.data);
-                playersStateUpdateListener(data, queryClient);
+                playersStateUpdateListener(data, queryClient, id);
             });
         }
     }, [isConnected]);

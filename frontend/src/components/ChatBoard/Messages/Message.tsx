@@ -17,6 +17,7 @@ export function Message({ msg, userId, ...props }: Props) {
         case ChatMessageTypes.ADMIN:
             return (
                 <AdminMessage
+                    {...props}
                     key={msgObj.id}
                     cls={msgObj.cls}
                     text={msgObj.text}
@@ -30,6 +31,7 @@ export function Message({ msg, userId, ...props }: Props) {
             const { id, name, cls, text, sid, timestamp } = msgObj;
             return (
                 <PlayerMessage
+                    {...props}
                     key={id}
                     name={name}
                     userId={userId}

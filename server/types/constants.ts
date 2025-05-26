@@ -12,8 +12,8 @@ export const enum ChatMessageTypes {
 }
 
 export const enum ChatMessageClass {
-    USER_NORMAL = "usr-normal", 
-    USER_MUTED = "usr-muted", 
+    USER_NORMAL = "usr-normal",
+    USER_MUTED = "usr-muted",
     ADMIN_GREEN = "admin-green",
     ADMIN_YELLOW = "admin-yellow",
     ADMIN_RED = "admin-red",
@@ -26,7 +26,7 @@ export const enum ClientActionTypes {
     PLAYER_JOINED = "player_joined",
     PLAYER_LEFT = "player_left",
     PLAYER_OWNER_CHANGED = "player_owner_changed",
-    PLAYER_IS_ARTIST = "player_is_artist",
+    PLAYERS_STATE_UPDATE = "players_st_updt",
     PLAYER_IS_OWNER = "player_is_owner",
 
     // state updates
@@ -38,6 +38,10 @@ export const enum ClientActionTypes {
     CANVAS_ACTION = "canvas_action",
     // ChatBoard message types
     CHAT_NEW_MESSAGE = "chat_new_msg",
+
+    WORD_OPTIONS = "word_options",
+    WORD = "word_hint",
+    TURN_RESULT = "turn_result",
 }
 
 export const enum ServerActionTypes {

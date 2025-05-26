@@ -14,7 +14,7 @@ interface Props extends React.HTMLAttributes<HTMLElement> {
 export function AdminMessage({ key, text, timestamp, cls, ...props }: Props) {
     return (
         <>
-            <div
+            <li
                 key={key}
                 className={`message flex items-end justify-between ${cls} font-sm w-full max-w-full`}
             >
@@ -30,7 +30,7 @@ export function AdminMessage({ key, text, timestamp, cls, ...props }: Props) {
                         hourCycle: "h24",
                     })}
                 </span>
-            </div>
+            </li>
         </>
     );
 }
