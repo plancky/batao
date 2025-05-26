@@ -4,6 +4,7 @@ import { z } from "zod";
 const configSchema = z.object({
     NODE_ENV: z.string().optional().default("development"),
     APP_URL: z.string().url(),
+    CREATION_PASSCODE_HASH: z.string(),
     DATABASE_URL: z.string().url().optional(),
     JWT_SECRET: z.string().optional(),
     SENTRY_DSN: z.string().optional(),

@@ -14,5 +14,5 @@ export interface TurnResultStatePayload {
 export type TurnResultObj = {
     name: string;
     deltaPoints: number;
-    accuracy: number | null;
+    accuracy: string | null;
 };

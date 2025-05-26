@@ -296,7 +296,7 @@ export class Turn extends EventEmitter<Events> {
         return resultArr.map((e) => ({
             name: e.player.name,
             deltaPoints: e.deltaPoints,
-            accuracy: e.tries ? (1 / e.tries) * 100 : null,
+            accuracy: e.tries ? ((1 / e.tries) * 100).toFixed(2) : null,
         }));
     }
 

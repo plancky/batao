@@ -84,7 +84,7 @@ export class Word {
         const ld = this.levenshteinDistance(this.word, guess);
         if (ld == 0) {
             return 1;
-        } else if (ld <= 3) {
+        } else if (ld <= 2) {
             return 0;
         } else return -1;
     }

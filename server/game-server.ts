@@ -31,9 +31,21 @@ app.use("/*", async (c, next) => {
 
 app.post("/lobby", async (c) => {
     const key = c.req.header("X-secret-key");
-    // const isMatch = await Bun.password.verify(key, hash);
+    if (key == undefined) {
+        throw new HTTPException(404, { message: "key not Found." });
+    }
+    const { CREATION_PASSCODE_HASH } = env<ENV>(c);
+    const isMatch = await Bun.password.verify(key, atob(CREATION_PASSCODE_HASH));
+    if (!isMatch) {
+        return c.json({ error: "Wrong key" }, 404);
+    }
+    await new Promise((res, rej) => {
+        setTimeout(() => {
+            res(null);
+        }, 1000);
+    });
     const session = SessionManager.createNewSession();
-    return c.json({ id: session.sessionId });
+    return c.json({ id: session.sessionId }, 200);
 });
 
 // Middleware to check if a session exists
