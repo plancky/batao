@@ -3,8 +3,8 @@ import { QueryClient } from "@tanstack/react-query";
 import { ClientAction } from "$/server-types/client-msgs";
 import { ClientActionTypes } from "$/server-types/constants";
 
-import { PLAYER_STATE, SEL_WORDS, USER_INFO_QUERY_KEY } from "./constants/query_keys";
-import { playersStateUpdate } from "./listeners/players-state";
+import { PLAYER_STATE_QK, SEL_WORDS_QK, USER_INFO_QUERY_KEY } from "./constants/query_keys";
+import { playersInfoUpdateListener } from "./listeners/players-info";
 import { PlayerStateQueryStore } from "./types/query_store";
 
 export async function checkSessionExists(sessionId: string) {
@@ -45,7 +45,7 @@ export function connectWebSocket(
 
     socket.addEventListener("message", (event) => {
         try {
-            console.debug("Message received:", event.data, typeof event.data);
+            // console.debug("Message received:", event.data, typeof event.data);
             const data: ClientAction = JSON.parse(event.data);
             // Chatboard handler: todo: move this to near the chatboard component
             // CBHandleWebsocketMessage(queryClient, data);
@@ -57,25 +57,12 @@ export function connectWebSocket(
                     });
                     break;
                 }
-                case ClientActionTypes.PLAYER_IS_ARTIST: {
-                    queryClient.setQueryData(
-                        PLAYER_STATE,
-                        (oldData: PlayerStateQueryStore = {}) => {
-                            return { ...oldData, isArtist: true };
-                        },
-                    );
-
-                    queryClient.setQueryData(SEL_WORDS, (oldData: string[] = []) => {
-                        return data?.payload?.words;
-                    });
-                    break;
-                }
                 default:
                     break;
             }
             // essential listeners
             if (data.type.startsWith("player")) {
-                playersStateUpdate(data, queryClient);
+                playersInfoUpdateListener(data, queryClient);
             }
         } catch (error) {
             console.error("Failed to parse message or update cache:", error);

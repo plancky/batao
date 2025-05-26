@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { PlayerState } from "$/server-types/player";
 
-import { PLAYERS_STATE_KEY_NS } from "@/lib/constants/query_keys";
+import { PLAYERS_INFO_QK_NS } from "@/lib/constants/query_keys";
 import Crown from "@/components/icons/crown.svg?react";
 
 import { useWS } from "../ws-provider";
@@ -22,7 +22,7 @@ export function PlayersPanel() {
     }, [ws]);
 
     const { data: players = [] as PlayerState[] } = useQuery({
-        queryKey: [PLAYERS_STATE_KEY_NS],
+        queryKey: [PLAYERS_INFO_QK_NS],
         queryFn: () => [], // Initial data function (returns empty array)
         staleTime: Infinity, // Data is managed manually via WebSocket
     });

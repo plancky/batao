@@ -6,7 +6,7 @@ import type { GameSessionImpl } from "@/GameSession/GameSession";
 import type { GameSession } from "@/GameSession/types";
 import type { CanvasActionPayload } from "@/types/canvas";
 import type { ChatInputPayload, ChatMessage } from "@/types/chat";
-import type { ChatMsgClientAction, ClientAction } from "@/types/client-msgs";
+import type { CanvasClientAction, ChatMsgClientAction, ClientAction } from "@/types/client-msgs";
 import {
     ChatMessageClass,
     ChatMessageTypes,
@@ -109,7 +109,7 @@ export class Player extends EventEmitter<Events> {
         try {
             this.ws.send(JSON.stringify(data));
         } catch (err) {
-            console.error("Error sending message to client:", err);
+            console.debug("Error: sending message to client:", err);
         }
     }
 
@@ -149,12 +149,11 @@ export class Player extends EventEmitter<Events> {
                     break;
                 case ServerActionTypes.CANVAS_ACTION:
                     if (game) game.emit("CANVAS_ACTION", this, data.payload);
-                    else this.emit("CANVAS_ACTION", this, data.payload);
+                    else this.handleCanvasAction(data.payload);
                     break;
                 case ServerActionTypes.CHAT_INPUT:
-                    console.log(data.payload);
                     if (game) game.emit("CHAT_INPUT", this, data.payload);
-                    else this.emit("CHAT_INPUT", this, data.payload);
+                    else this.handleChatMessage(data.payload);
                     break;
                 default:
                     break;
@@ -171,4 +170,20 @@ export class Player extends EventEmitter<Events> {
         //this.session.players.delete(ws);
     }
     onError(evt: Event, ws: WSContext<Bun.ServerWebSocket<undefined>>) {}
+
+    handleCanvasAction(payload: CanvasActionPayload): void {
+        this.session.broadcastMessageToAllPlayers({
+            type: ClientActionTypes.CANVAS_ACTION,
+            payload: payload,
+        } as CanvasClientAction);
+    }
+
+    handleChatMessage(payload: ChatInputPayload): void {
+        const { text, timestamp } = payload;
+
+        this.session.broadcastMessageToAllPlayers({
+            type: ClientActionTypes.CHAT_NEW_MESSAGE,
+            payload: this.getChatMessage(text, timestamp, false),
+        } as ChatMsgClientAction);
+    }
 }

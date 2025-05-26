@@ -1,7 +1,7 @@
 import type { Player } from "@/Player/Player";
 import type { CanvasActionPayload } from "@/types/canvas";
 import type { ChatInputPayload } from "@/types/chat";
-import type { CanvasClientAction } from "@/types/client-msgs";
+import type { CanvasClientAction, ChatMsgClientAction } from "@/types/client-msgs";
 import { ClientActionTypes } from "@/types/constants";
 
 import { GameStates } from "../constants";
@@ -16,10 +16,6 @@ export class Waiting extends GameState {
         super(game);
     }
 
-    setTurn(turn: Turn): void {
-        super.setTurn(turn);
-    }
-
     handleCanvasAction(player: Player, payload: CanvasActionPayload): void {
         this.session.broadcastMessageToAllPlayers({
             type: ClientActionTypes.CANVAS_ACTION,
@@ -28,7 +24,13 @@ export class Waiting extends GameState {
     }
 
     handleChatMessage(player: Player, payload: ChatInputPayload): void {
-        console.log(this.state, payload);
+        console.log("Message_received: ", payload);
+        const { text, timestamp } = payload;
+
+        this.session.broadcastMessageToAllPlayers({
+            type: ClientActionTypes.CHAT_NEW_MESSAGE,
+            payload: player.getChatMessage(text, timestamp, false),
+        } as ChatMsgClientAction);
     }
 
     nextState(): GameState {

@@ -1,7 +1,10 @@
 import { useCallback } from "react";
 
 import { ServerActionTypes } from "$/server-types/constants";
-import { StartServerAction } from "$/server-types/client-msgs";
+import { StartServerAction } from "$/server-types/server-msgs";
+import { SessionStates } from "$/session/constants";
+
+import { useSessionState, useUserInfo } from "@/lib/hooks";
 
 import { Button } from "./ui/button";
 import { useWS } from "./ws-provider";
@@ -21,9 +24,18 @@ export default function AdminPannel({ ...props }: Props) {
         if (sendMessage) sendMessage(data);
     }, [ws]);
 
+    const session_state = useSessionState();
+    const { isOwner } = useUserInfo();
+
+    const sessionIsWaiting = session_state == SessionStates.WAITING;
+
     return (
-        <div className="flex gap-5" {...props}>
-            <Button onClick={reqStart}>Start</Button>
-        </div>
+        <>
+            {sessionIsWaiting && isOwner && (
+                <div className="flex gap-5" {...props}>
+                    <Button onClick={reqStart}>Start</Button>
+                </div>
+            )}
+        </>
     );
 }

@@ -78,6 +78,7 @@ export function handleWebSocketMessage(queryClient: QueryClient, data: ClientAct
             break;
         }
         default:
-            console.log("Unknown message type:", data.type);
+            // console.log("Unknown message type:", data.type);
+            break;
     }
 }

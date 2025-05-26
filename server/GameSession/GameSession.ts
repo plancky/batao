@@ -3,8 +3,13 @@ import type { WSContext, WSMessageReceive } from "hono/ws";
 import { Game } from "@/Game/Game";
 import { Player } from "@/Player/Player";
 import type { CanvasActionPayload } from "@/types/canvas";
-import type { CanvasClientAction, ClientAction } from "@/types/client-msgs";
-import { ClientActionTypes } from "@/types/constants";
+import type {
+    CanvasClientAction,
+    ChatMsgClientAction,
+    ClientAction,
+    PlayerIsOwnerClientAction,
+} from "@/types/client-msgs";
+import { ChatMessageClass, ChatMessageTypes, ClientActionTypes } from "@/types/constants";
 import { randomUUIDv7 } from "bun";
 
 import { SessionStates } from "./constants";
@@ -54,6 +59,10 @@ export class GameSessionImpl extends GameSession {
             type: ClientActionTypes.PLAYER_OWNER_CHANGED,
             payload: owner.getMetadata(),
         });
+        owner?.sendMsg({
+            type: ClientActionTypes.PLAYER_IS_OWNER,
+            payload: owner.getMetadata(),
+        } as PlayerIsOwnerClientAction);
         this.owner = owner;
     }
 
@@ -65,35 +74,16 @@ export class GameSessionImpl extends GameSession {
         // attach event handlers
         player.on("PLAYER_JOINED", this.onPlayerJoined.bind(this));
         player.on("PLAYER_LEFT", this.onPlayerLeft.bind(this));
-        player.on("CANVAS_ACTION", this.onCanvasAction.bind(this));
 
         return player;
-    }
-
-    onCanvasAction(player: Player, payload: CanvasActionPayload) {
-        switch (this.state) {
-            case SessionStates.WAITING:
-                this.broadcastMessageToAllPlayers({
-                    type: ClientActionTypes.CANVAS_ACTION,
-                    payload: payload,
-                } as CanvasClientAction);
-                break;
-            /*
-            case SessionStates.INGAME:
-                this.game.emit("GENERAL_INPUT_WSMSG", player, data);
-                break;
-            */
-            default:
-                break;
-        }
     }
 
     deletePlayer(player: Player) {
         if (this.owner == player) {
             const new_owner = this.getNextPlayer(this.owner)!;
             if (new_owner) {
-                this.setOwner(this.owner);
                 new_owner.makeOwner();
+                this.setOwner(new_owner);
             }
         }
         this.players.delete(player);
@@ -105,6 +95,21 @@ export class GameSessionImpl extends GameSession {
             type: ClientActionTypes.PLAYER_LEFT,
             payload: player.getMetadata(),
         });
+        this.broadcastMessageToAllPlayers({
+            type: ClientActionTypes.CHAT_NEW_MESSAGE,
+            payload: {
+                type: ChatMessageTypes.ADMIN,
+                msg: {
+                    text: `${player.name} left the room`,
+                    cls: ChatMessageClass.ADMIN_RED,
+                    timestamp: new Date().toISOString(),
+                },
+            },
+        } as ChatMsgClientAction);
+
+        if (this.players.size == 0) {
+            this.stop();
+        }
     }
 
     protected onPlayerJoined(player: Player) {
@@ -113,13 +118,13 @@ export class GameSessionImpl extends GameSession {
         this.broadcastMessageToAllPlayers({ type: ClientActionTypes.PLAYER_JOINED, payload });
 
         {
-            const players = [...this.players].map((player) => player.getState());
+            const players = [...this.players].map((player) => player.getMetadata());
             const payload = {
                 players,
             };
 
             player.sendMsg({
-                type: ClientActionTypes.PLAYERS_INITIAL_STATE_UPDATE,
+                type: ClientActionTypes.PLAYERS_INITIAL_INFO_UPDATE,
                 payload,
             } as ClientAction);
         }
@@ -134,6 +139,10 @@ export class GameSessionImpl extends GameSession {
         for (const p of iterator) {
             if (p == player) return iterator.next().value;
         }
+    }
+
+    async stop() {
+        this.game.clock.stopClock();
     }
 
     async start() {
@@ -163,14 +172,12 @@ export class GameSessionImpl extends GameSession {
     broadcastMessage(players: Set<Player>, data: any) {
         const messageString = JSON.stringify(data);
 
-        /*
         console.log(
             "boroadcasting: ",
             messageString,
             "to: ",
-            [...players].map((p) => p.getMetadata()),
+            [...players].map((p) => p.getMetadata().name),
         );
-        */
 
         for (const player of players.values()) {
             if (player.ws.readyState === WebSocket.OPEN) {

@@ -5,6 +5,8 @@
         "paths": {
             "@/components/*": ["./src/components/*"],
             "$/server-types/*": ["../server/types/*"],
+            "$/game/*": ["../server/Game/*"],
+            "$/session/*": ["../server/GameSession/*"],
             "@/*": ["./src/*"]
         },
         "strict": true,
@@ -15,5 +17,5 @@
         "moduleResolution": "Bundler",
         "skipLibCheck": true
     },
-    "include": ["src", "../server/types"]
+    "include": ["src", "../server/types", "../server/Game", "../server/GameSession"]
 }

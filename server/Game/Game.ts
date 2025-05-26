@@ -104,6 +104,7 @@ export class Game extends EventEmitter<Events> {
         this.runNextRound();
     }
 
+    // obsolete: has to be moved to GameState
     getGameStateVars() {
         const players = [...this.players].map((player) => player.getState.call(player));
 

@@ -2,14 +2,15 @@
 import React, { Ref, RefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { MESSAGES_QUERY_KEY, USER_INFO_QUERY_KEY } from "@/lib/constants/query_keys";
+import { ClientAction } from "$/server-types/client-msgs";
+
+import { useChatMessages, useEssentialUserInfo, useUserInfo } from "@/lib/hooks";
 
 import { useWS } from "../ws-provider";
 import { useSendMessageCallback } from "./hooks";
 import { Message } from "./Messages/Message";
 import type { ChatMessage } from "./types";
 import { handleWebSocketMessage } from "./ws";
-import { ClientAction } from "$/server-types/client-msgs";
 
 interface Props extends React.HTMLAttributes<HTMLElement> {}
 
@@ -19,37 +20,21 @@ export default function ChatBoard({ ...props }: Props) {
         ws: { raw: ws, sendMessage, addMessageEventListener },
         isConnected,
     } = useWS();
-    //const ws = wsRef; // Ref to hold the WebSocket instance
+
     const queryClient = useQueryClient(); // Get QueryClient instance
-    // const { isConnected, messages } = useReactQuerySubscription(ws, queryClient);
 
     useEffect(() => {
         addMessageEventListener!((event) => {
             const data: ClientAction = JSON.parse(event.data);
             handleWebSocketMessage(queryClient, data);
         });
-    }, []);
+    }, [isConnected]);
 
-    // --- Fetching / Displaying Messages using React Query ---
-    // We initialize with an empty array. Updates will come via WebSocket.
-    // `staleTime: Infinity` ensures react-query doesn't try to refetch this automatically.
-    // We are manually controlling the cache updates via WebSocket messages.
-    const { data: user_info = {} as any } = useQuery({
-        queryKey: USER_INFO_QUERY_KEY,
-        queryFn: () => [],
-        staleTime: Infinity,
-    });
+    const { user_info } = useEssentialUserInfo();
 
-    const { uid, ukey, uname } = useMemo(() => {
-        const { id, key, uname } = user_info;
-        return { uid: id, ukey: key, uname };
-    }, [user_info]);
+    const { id: uid, key: ukey, uname } = user_info;
 
-    const { data: messages = [] as ChatMessage[] } = useQuery({
-        queryKey: MESSAGES_QUERY_KEY,
-        queryFn: () => [] as ChatMessage[], // Initial data function (returns empty array)
-        staleTime: Infinity, // Data is managed manually via WebSocket
-    });
+    const messages = useChatMessages();
 
     // --- Send Message Handler ---
     const { handleSendChatMessage, newMessage, setNewMessage } = useSendMessageCallback(
@@ -66,7 +51,7 @@ export default function ChatBoard({ ...props }: Props) {
     return (
         <div className="basis-1/5 h-full xl:mt-0 mt-5">
             <div className="chatroom h-full">
-                <div className="chatroom-header bg-primary text-primary-foreground p-4 flex justify-between">
+                <div className="chatroom-header bg-primary/10 p-4 flex justify-between">
                     <div>
                         <span className="user-id">{uname}</span>
                     </div>

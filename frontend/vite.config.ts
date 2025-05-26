@@ -23,6 +23,8 @@ export default defineConfig({
         alias: {
             "@": path.resolve(__dirname, "./src"),
             "$/server-types": resolve(__dirname, "../server/types"),
+            "$/game": resolve(__dirname, "../server/Game"),
+            "$/session": resolve(__dirname, "../server/GameSession"),
         },
     },
     server: {

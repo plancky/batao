@@ -1,6 +1,6 @@
 import { RefObject, useEffect } from "react";
 
-import { DrawBoardOverlay } from "../DrawBoardOverlay";
+import { DrawBoardOverlay } from "../DrawBoardOverlay/DrawBoardOverlay";
 import { useWS } from "../ws-provider";
 import { DrawingBoard } from "./main";
 
@@ -29,6 +29,7 @@ export default function DrawBoard({ ...props }: Props) {
             document.removeEventListener("DOMContentLoaded", handleContentLoaded);
         };
     }, [ws]);
+
 
     return (
         <>

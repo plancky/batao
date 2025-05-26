@@ -4,7 +4,7 @@ import type { SessionStates } from "@/GameSession/constants";
 import type { CanvasActionPayload } from "./canvas";
 import type { ChatMessage } from "./chat";
 import { CanvasActions, ClientActionTypes, ServerActionTypes } from "./constants";
-import type { PlayerMetadata, PlayerState } from "./player";
+import type { PlayerMetadata, PlayerState as PlayerMetadata } from "./player";
 
 export type ClientAction =
     | PlayersStateUpdateClientAction
@@ -16,22 +16,20 @@ export type ClientAction =
     | PlayerLeftClientAction
     | OwnerChangeClientAction
     | IsArtistClientAction
+    | PlayerIsOwnerClientAction
     | ClockClientAction
     | ChatMsgClientAction;
 
 // Different action types
-export type PlayersStateUpdateClientAction = {
-    type: ClientActionTypes.PLAYERS_INITIAL_STATE_UPDATE;
-    payload: PlayersStateUpdatePayload;
-};
 
+export type essentialUserInfo = {
+    key: string;
+    id: string;
+    uname: string;
+};
 export type ConnectedClientAction = {
     type: ClientActionTypes.CONNECTED;
-    payload: {
-        key: string;
-        id: string;
-        uname: string;
-    };
+    payload: essentialUserInfo;
 };
 
 export type GameStateUpdateClientAction = {
@@ -63,6 +61,11 @@ export type OwnerChangeClientAction = {
     payload: PlayerMetadata;
 };
 
+export type PlayerIsOwnerClientAction = {
+    type: ClientActionTypes.PLAYER_IS_OWNER;
+    payload: PlayerMetadata;
+};
+
 export type IsArtistClientAction = {
     type: ClientActionTypes.PLAYER_IS_ARTIST;
     payload: {
@@ -86,6 +89,11 @@ export type ChatMsgClientAction = {
 };
 
 // Payload types
-interface PlayersStateUpdatePayload {
-    players: PlayerState[];
+interface PlayersInfoUpdatePayload {
+    players: PlayerMetadata[];
 }
+
+export type PlayersStateUpdateClientAction = {
+    type: ClientActionTypes.PLAYERS_INITIAL_INFO_UPDATE;
+    payload: PlayersInfoUpdatePayload;
+};

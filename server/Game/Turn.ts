@@ -47,7 +47,6 @@ export class Turn extends EventEmitter<Events> {
         const clk = game.clock;
         const wordSelDurr = 20;
         game.state.setTurn.call(game.state, this);
-        console.log("Turn ref: ", game.state.turn);
 
         this.ON("TURN_START", (e) => {
             this.guessWordsSelectionList = this.pickGuessWords(3, false);
@@ -104,7 +103,7 @@ export class Turn extends EventEmitter<Events> {
         const drawDurr = this.game.config.turnDuration;
         this.ON("DRAW_START", () => {
             game.changeState.call(game, game.state.nextState.call(game.state));
-            const drawTimer = clk.onTick(
+            const removeDrawTimer = clk.onTick(
                 (tick: number) => {
                     const timer_value = drawDurr - tick;
                     this.session.broadcastMessageToAllPlayers({

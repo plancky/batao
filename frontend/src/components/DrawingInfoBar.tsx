@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ClientActionTypes } from "$/server-types/constants";
 import { ClientAction } from "$/server-types/client-msgs";
 
-import { SEL_WORDS } from "@/lib/constants/query_keys";
+import { SEL_WORDS_QK } from "@/lib/constants/query_keys";
 
 import Clock from "./icons/clock.svg?react";
 import { useWS } from "./ws-provider";

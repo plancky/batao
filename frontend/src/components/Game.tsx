@@ -1,3 +1,11 @@
+import { useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+
+import { ClientAction } from "$/server-types/client-msgs";
+
+import { gameStateUpdateListener } from "@/lib/listeners/game-state";
+import { playersStateUpdateListener } from "@/lib/listeners/players-state";
+
 import ChatBoard from "./ChatBoard/ChatBoard";
 import { LeftSidebar } from "./LeftSidebar";
 import MainArea from "./MainArea";
@@ -6,9 +14,24 @@ import { useWS } from "./ws-provider";
 
 export function Game() {
     const {
-        ws: { raw: ws },
+        ws: { raw: ws, addMessageEventListener },
         isConnected,
     } = useWS();
+    const queryClient = useQueryClient();
+    useEffect(() => {
+        if (addMessageEventListener) {
+            console.log("attaching listeners");
+            addMessageEventListener((event) => {
+                const data: ClientAction = JSON.parse(event.data);
+                gameStateUpdateListener(data, queryClient);
+            });
+            addMessageEventListener((event) => {
+                const data: ClientAction = JSON.parse(event.data);
+                playersStateUpdateListener(data, queryClient);
+            });
+        }
+    }, [isConnected]);
+
     return (
         <>
             {!isConnected ? (

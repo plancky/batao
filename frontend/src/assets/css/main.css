@@ -28,7 +28,6 @@
 */
 
 @theme inline {
-
     --radius-sm: calc(var(--radius) - 4px);
 
     --radius-md: calc(var(--radius) - 2px);
@@ -36,6 +35,10 @@
     --radius-lg: var(--radius);
 
     --radius-xl: calc(var(--radius) + 4px);
+
+    --color-admin-green: var(--admin-green);
+
+    --color-admin-red: var(--admin-red);
 
     --color-background: var(--background);
 
@@ -105,6 +108,8 @@
 */
 
 :root {
+    --admin-green: oklch(0.7 0.2343 166.24);
+    --admin-red: oklch(0.5736 0.2245 30.71);
 
     --radius: 0.625rem;
 
@@ -176,7 +181,6 @@
 */
 
 .dark {
-
     --background: oklch(0.129 0.042 264.695);
 
     --foreground: oklch(0.984 0.003 247.858);

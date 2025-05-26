@@ -1,10 +1,9 @@
 /* src/Chatroom.css */
 .chatroom {
+    @apply rounded-(--radius);
     display: flex;
     flex-direction: column;
     max-width: 600px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
     overflow: hidden;
     font-family: sans-serif;
 }
@@ -14,19 +13,28 @@
 }
 
 #messages {
-    @apply flex-1 overflow-y-auto flex flex-col gap-0 bg-primary text-primary-foreground w-full;
+    @apply flex-1 overflow-y-auto flex flex-col gap-0 bg-primary/10 w-full;
 }
 
 .no-messages {
-    @apply text-center bg-primary my-auto;
+    @apply text-center my-auto;
 }
 
 .message {
     @apply py-1 leading-0 px-4 border-b border-secondary/50 first:border-t;
+
     word-wrap: break-word; /* Ensure long words break */
 
     &.sent .sender {
         @apply hidden;
+    }
+
+    &.admin-green {
+        @apply text-admin-green;
+    }
+
+    &.admin-red {
+        @apply text-admin-red;
     }
 
     &.joining_msg {
@@ -63,7 +71,6 @@
 .message-input input {
     @apply rounded-(--radius) p-2;
     flex-grow: 1;
-    border: 1px solid #ccc;
     margin-right: 10px;
 }
 
