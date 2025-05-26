@@ -4,7 +4,6 @@ import { ClientAction, letterObj } from "$/server-types/client-msgs";
 import { ClientActionTypes } from "$/server-types/constants";
 
 import { useWS } from "../ws-provider";
-import { boolean } from "zod";
 
 export default function Word() {
     const [loArr, setLoArr] = useState<letterObj[]>([]);
@@ -28,10 +27,9 @@ export default function Word() {
         });
     }, [ws, isConnected]);
 
-    console.log(loArr)
     return (
         <>
-            {boolean(loArr.length) && (
+            {Boolean(loArr.length) && (
                 <ul className="flex gap-4">
                     {loArr.map((lo, i) => {
                         const { letter } = lo;

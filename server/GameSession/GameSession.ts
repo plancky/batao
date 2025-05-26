@@ -8,6 +8,7 @@ import type {
     ChatMsgClientAction,
     ClientAction,
     PlayerIsOwnerClientAction,
+    PlayersStateUpdateClientAction,
 } from "@/types/client-msgs";
 import { ChatMessageClass, ChatMessageTypes, ClientActionTypes } from "@/types/constants";
 import type { GameConfig } from "@/types/server-msgs";
@@ -112,7 +113,7 @@ export class GameSessionImpl extends GameSession {
         // Broadcast joining message
         const payload = player.getMetadata();
         this.broadcastMessageToAllPlayers({ type: ClientActionTypes.PLAYER_JOINED, payload });
-
+        this.broadcastPLayerStates(player);
         {
             const players = [...this.players].map((player) => player.getMetadata());
             const payload = {
@@ -145,10 +146,28 @@ export class GameSessionImpl extends GameSession {
 
     async start(gameConfig: GameConfig) {
         this.game = new Game(this, this.players, gameConfig);
-        console.log("Game Config", gameConfig)
+        console.log("Game Config", gameConfig);
         this.changeState(SessionStates.INGAME);
         console.log("Starting the game....");
         await this.game.start.call(this.game);
+    }
+
+    broadcastPLayerStates(player: Player) {
+        if (player) {
+            player.sendMsg({
+                type: ClientActionTypes.PLAYERS_STATE_UPDATE,
+                payload: {
+                    players: this.getPlayerStates(),
+                },
+            } as PlayersStateUpdateClientAction);
+        } else {
+            this.broadcastMessageToAllPlayers({
+                type: ClientActionTypes.PLAYERS_STATE_UPDATE,
+                payload: {
+                    players: this.getPlayerStates(),
+                },
+            } as PlayersStateUpdateClientAction);
+        }
     }
 
     getPlayerStates() {
