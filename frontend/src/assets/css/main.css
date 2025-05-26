@@ -40,6 +40,8 @@
 
     --color-admin-red: var(--admin-red);
 
+    --color-admin-yellow: var(--admin-yellow);
+
     --color-background: var(--background);
 
     --color-foreground: var(--foreground);
@@ -110,6 +112,7 @@
 :root {
     --admin-green: oklch(0.7 0.2343 166.24);
     --admin-red: oklch(0.5736 0.2245 30.71);
+    --admin-yellow: oklch(0.8412 0.2023 100.59);
 
     --radius: 0.625rem;
 

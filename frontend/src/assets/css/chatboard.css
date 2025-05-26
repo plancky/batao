@@ -37,6 +37,10 @@
         @apply text-admin-red;
     }
 
+    &.admin-yellow {
+        @apply text-admin-yellow;
+    }
+
     &.joining_msg {
         @apply !bg-chart-2/70 text-accent-foreground;
     }

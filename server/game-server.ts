@@ -29,7 +29,9 @@ app.use("/*", async (c, next) => {
     return await corsMiddleware(c, next);
 });
 
-app.post("/lobby", (c) => {
+app.post("/lobby", async (c) => {
+    const key = c.req.header("X-secret-key");
+    // const isMatch = await Bun.password.verify(key, hash);
     const session = SessionManager.createNewSession();
     return c.json({ id: session.sessionId });
 });

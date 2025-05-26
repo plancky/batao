@@ -3,7 +3,10 @@
     "scripts": {
         "dev": "bun run --bun --hot server/index.ts",
         "format:write": "prettier . --write",
-        "format:check": "prettier . --check"
+        "format:check": "prettier . --check",
+        "lint:server": "cd server && eslint .",
+        "lint:frontend": "cd frontend && eslint .",
+        "start": "bun server/index.ts"
     },
     "dependencies": {
         "hono": "^4.7.7",
