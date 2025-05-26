@@ -9,6 +9,7 @@ import { config, type ENV } from "./config";
 import gs from "./game-server";
 import type { Variables } from "./types/variables";
 import type { ErrorResponse } from "./types/server-msgs";
+import { logger } from "hono/logger";
 
 // ...
 const config1 = config;

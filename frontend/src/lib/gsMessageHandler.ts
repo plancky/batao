@@ -27,12 +27,12 @@ export function connectWebSocket(
     uname?: string,
     setUserMetaData?: (userData: any) => void,
 ) {
-    console.log("Connecting chatboard to WebSocket server...");
+    console.debug("Connecting to WebSocket server...");
 
     const ws_url = new URL(`/gs/connect/${sessionId}`, window.location.origin);
-    ws_url.protocol = "ws";
+    ws_url.protocol = window.location.protocol === "http:" ? "ws" : "wss";
     if (uname) ws_url.searchParams.set("uname", uname);
-    const socket = new WebSocket(ws_url);
+    const socket = new window.WebSocket(ws_url);
 
     // DrawingBoard API
     // const drawAPI = new DrawingBoard(document.querySelector("#drawContainer")!);

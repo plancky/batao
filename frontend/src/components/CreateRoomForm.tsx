@@ -56,11 +56,9 @@ export function CreateRoomForm({ ...props }: Props) {
             form.setError("passcode", error, {
                 shouldFocus: true,
             });
-            console.log(`Wrong password`);
         },
         onSuccess: (data, variables, context) => {
             // Boom baby!
-            console.log(data);
             location.pathname = `/room/${data.id}`;
         },
         onSettled: (data, error, variables, context) => {

@@ -1,0 +1,23 @@
+services:
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        environment:
+            - NODE_ENV="production"
+            - APP_URL="https://batao.io"
+            - PORT=3000
+            - CREATION_PASSCODE_HASH=JGFyZ29uMmlkJHY9MTkkbT02NTUzNix0PTIscD0xJG5kZjh2TlRwY0FSUm5hbmtRNWM4WlhoSlpkOGl3MWcxUEIxWTBnNmpXL0kkZ2tpd0VoaHc2Zm1Nd21BNVhlcjI1V21oVlJ6aThFMm54bERXSWk5YUlwYw==
+        depends_on:
+            - db
+        networks:
+            - batao-network
+        ports:
+            - "3000:3000"
+
+networks:
+    batao-network:
+        driver: bridge
+
+volumes:
+    postgres-data:

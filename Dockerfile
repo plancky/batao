@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.7-labs
-ARG BUN_VERSION=1.1.30
+ARG BUN_VERSION=1.2.2
 FROM oven/bun:${BUN_VERSION}-slim as base
 
 LABEL fly_launch_runtime="Bun"
@@ -8,11 +8,11 @@ WORKDIR /usr/src/app
 
 FROM base AS install
 RUN mkdir -p /temp/prod/server
-COPY package.json bun.lockb /temp/prod/server/
+COPY package.json bun.lock /temp/prod/server/
 RUN cd /temp/prod/server && bun install --frozen-lockfile --production
 
 RUN mkdir -p /temp/prod/frontend
-COPY frontend/bun.lockb frontend/package.json /temp/prod/frontend/
+COPY frontend/bun.lock frontend/package.json /temp/prod/frontend/
 RUN cd /temp/prod/frontend && bun install --frozen-lockfile
 
 FROM base as build

@@ -3,12 +3,10 @@ import { env } from "hono/adapter";
 import { serveStatic } from "hono/bun";
 import { cors } from "hono/cors";
 import { HTTPException } from "hono/http-exception";
+import { logger } from "hono/logger";
 
 import { upgradeWebSocket, websocket } from "./bunws";
-import { upgradeChatConnectionHandler } from "./chatRoom/chatRoomWS";
 import type { ENV } from "./config";
-import { upgradeWSGSConnectionHandler } from "./drawBoard/drawBoardWS";
-import type { GameSession } from "./GameSession/types";
 import SessionManager from "./Lobby/GameSessionManager";
 import type { Variables } from "./types/variables";
 
@@ -17,13 +15,15 @@ import type { Variables } from "./types/variables";
 const app = new Hono<{ Variables: Variables }>();
 
 // cors middleware
+app.use(logger());
 app.use("/*", async (c, next) => {
     const { APP_URL, NODE_ENV } = env<ENV>(c);
     const localOrigins = ["http://localhost:3000", "http://localhost:3001"];
     const corsMiddleware = cors({
         origin: NODE_ENV == "production" ? APP_URL! : localOrigins,
-        allowHeaders: ["Origin", "Content-Type", "Authorization"],
-        allowMethods: ["GET", "OPTIONS", "POST", "PUT", "DELETE"],
+        allowHeaders: ["*"],
+        allowMethods: ["GET", "POST", "OPTIONS"],
+        exposeHeaders: ["*"],
         credentials: true,
     });
     return await corsMiddleware(c, next);
@@ -53,6 +53,7 @@ app.post("/connect/:sessionId", async (c, next) => {
     const { sessionId } = c.req.param();
     const session = SessionManager.getSessionById(sessionId);
     if (!session) {
+        console.log("Session not found...", "\n request:", c.req);
         throw new HTTPException(404, { message: "Session Not Found." });
     }
     c.set("session", session);

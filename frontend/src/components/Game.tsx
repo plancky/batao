@@ -23,8 +23,7 @@ export function Game() {
         user_info: { id },
     } = useEssentialUserInfo();
     useEffect(() => {
-        if (addMessageEventListener) {
-            console.log("attaching listeners");
+        if (addMessageEventListener && isConnected) {
             addMessageEventListener((event) => {
                 const data: ClientAction = JSON.parse(event.data);
                 gameStateUpdateListener(data, queryClient);
