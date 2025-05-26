@@ -8,6 +8,7 @@ import type { GameStateUpdatePayload } from "@/types/game-state";
 import type { GameStates } from "../../types/game-constants";
 import type { Game } from "../Game";
 import type { Turn } from "../Turn";
+import type { ChatInputPayload } from "@/types/chat";
 
 export abstract class GameState {
     state!: GameStates;
@@ -37,7 +38,7 @@ export abstract class GameState {
     }
 
     abstract handleCanvasAction(player: Player, payload: CanvasActionPayload): void;
-    abstract handleChatMessage(player: Player, data: any): void;
+    abstract handleChatMessage(player: Player, payload: ChatInputPayload): void;
 
-    abstract nextState(): GameState;
+    abstract next(): GameState;
 }

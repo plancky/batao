@@ -10,6 +10,7 @@ import type {
     PlayerIsOwnerClientAction,
 } from "@/types/client-msgs";
 import { ChatMessageClass, ChatMessageTypes, ClientActionTypes } from "@/types/constants";
+import type { GameConfig } from "@/types/server-msgs";
 import { randomUUIDv7 } from "bun";
 
 import { SessionStates } from "./constants";
@@ -142,21 +143,17 @@ export class GameSessionImpl extends GameSession {
     }
 
     async stop() {
-        this.game.clock.stopClock();
+        if (this.game) {
+            this.game.clock.stopClock();
+        }
     }
 
-    async start() {
-        this.game = new Game(this, this.players);
+    async start(gameConfig: GameConfig) {
+        this.game = new Game(this, this.players, gameConfig);
+        console.log("Game Config", gameConfig)
         this.changeState(SessionStates.INGAME);
         console.log("Starting the game....");
         this.game.start.call(this.game);
-        //pre-req: every small action has to happen async, any waiting action cannot be on the stack
-        // you might have to keep track of global variables like rounds_done(game-level), active_player(turn-level), already_done_players (round-level)
-        // starts the game loop and decides on the first "drawer" player and kicks of the first turn event
-        // turn ends and the scores are broadcasted and stored
-        // repeats it for all players
-        // once done for all players broadcasts roundscores and decides if to repeat it again for the next round.
-        // finally decides to stop and broadcasts the final_scores
     }
 
     getPlayerStates() {

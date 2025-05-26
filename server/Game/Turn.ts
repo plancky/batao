@@ -6,8 +6,10 @@ import type { WordClientAction, WordOptionsClientAction } from "@/types/client-m
 import { ClientActionTypes } from "@/types/constants";
 import type { TurnResultObj, TurnResultStatePayload } from "@/types/game-state";
 import type { TurnPlayerScoreObj, TurnScoreObj } from "@/types/player";
+import type { GameConfig } from "@/types/server-msgs";
 import { Word } from "@/Word/Word";
 
+import type { Clock } from "./Clock";
 import type { Game } from "./Game";
 import { Result } from "./GameStates/Result";
 import { getRandomElement } from "./utils";
@@ -66,19 +68,26 @@ export class Turn extends EventEmitter<Events> {
         this.setup();
     }
 
+    moveToNextState() {
+        const g = this.game;
+        g.changeState.call(g, g.state.next.call(g.state));
+    }
+
     setup(): void {
         const game = this.game;
         const clk = game.clock;
-        const wordSelDurr = 20;
         game.state.setTurn.call(game.state, this);
-        const moveToNextState = () => {
-            game.changeState.call(game, game.state.nextState.call(game.state));
-        };
+
+        const config = this.game.config;
 
         this.ON("TURN_START", (e) => {
-            this.guessWordsSelectionList = this.pickGuessWords(3, false);
+            // pick words
+            this.guessWordsSelectionList = this.pickGuessWords(config.wordCount, false);
+            console.log("Turn", this.artist.getMetadata());
             console.log("Turn has started..", this.guessWordsSelectionList);
+            // update artist state
             this.artist.isArtist = true;
+            // Send the wordlist to the artist
             e.artist.sendMsg({
                 type: ClientActionTypes.WORD_OPTIONS,
                 payload: {
@@ -88,8 +97,29 @@ export class Turn extends EventEmitter<Events> {
             this.EMIT("WORD_SEL_START", this);
         });
 
+        this.wordSelSetup(clk);
+        this.drawSetup(clk, config);
+        this.resultSetup(clk);
+
+        this.ON("TURN_END", () => {
+            // cleanup before the next turn starts
+            this.wordAPI.cleanup();
+            this.wordAPI.broadcastGuessWordObj(this.session);
+
+            this.artist.isArtist = false;
+            this.players.forEach((p) => {
+                p.hasGuessed = false;
+            });
+
+            this.moveToNextState();
+        });
+    }
+
+    protected wordSelSetup(clk: Clock) {
+        const wordSelDurr = 20;
+
         this.ON("WORD_SEL_START", (turn) => {
-            moveToNextState();
+            this.moveToNextState();
             const removeWordSelListener = clk.onTick(
                 (tick: number) => {
                     const timer_value = wordSelDurr - tick;
@@ -128,25 +158,34 @@ export class Turn extends EventEmitter<Events> {
             console.log("Word Select ended", this.guessWord);
             this.wordAPI = new Word(this.guessWord);
 
-            this.wordAPI.broadcastWordUpdate(this.session);
-            this.artist.sendMsg({
-                type: ClientActionTypes.WORD,
-                payload: {
-                    word: Object.values(this.wordAPI.wordObj),
-                },
-            } as WordClientAction);
+            this.wordAPI.broadcastGuessWordObj(this.session);
+            this.wordAPI.broadcastWordObj(this.session, this.artist);
 
             // cleanup after word select
             this.artist.removeAllListeners("WORD_SELECTED");
             this.EMIT("DRAW_START");
         });
+    }
 
-        const drawDurr = this.game.config.turnDuration;
+    protected drawSetup(clk: Clock, config: GameConfig) {
+        const { hints, drawtime } = config;
+        const hintsDurrArr = Array.from(
+            { length: hints! },
+            (v, k) => (k + 1) * ((drawtime! - 10) / hints!),
+        );
+
         this.ON("DRAW_START", () => {
-            moveToNextState();
+            this.moveToNextState();
             const removeDrawTimer = clk.onTick(
                 (tick: number) => {
-                    const timer_value = drawDurr - tick;
+                    const timer_value = drawtime! - tick;
+                    if (hintsDurrArr.includes(timer_value)) {
+                        this.wordAPI.addLetter();
+                        const exclude = this.gPlayers.union(new Set([this.artist]));
+                        this.wordAPI.broadcastGuessWordObj(this.session, exclude);
+                        this.wordAPI.guessWordObj;
+                    }
+
                     this.session.broadcastMessageToAllPlayers({
                         type: ClientActionTypes.CLOCK_UPDATE,
                         payload: { value: timer_value },
@@ -156,7 +195,7 @@ export class Turn extends EventEmitter<Events> {
                     (tick: number) => {
                         this.EMIT("DRAW_END");
                     },
-                    drawDurr,
+                    drawtime!,
                 ],
             );
             clk.startClock();
@@ -174,7 +213,10 @@ export class Turn extends EventEmitter<Events> {
             this.calculateArtistScore(this.artist);
             this.EMIT("RESULT_START");
         });
+    }
 
+    protected resultSetup(clk: Clock) {
+        const game = this.game;
         const resultDurr = 10;
         this.ON("RESULT_START", () => {
             const resultState = new Result(game, this);
@@ -204,23 +246,9 @@ export class Turn extends EventEmitter<Events> {
             );
             clk.startClock();
         });
-
-        this.ON("TURN_END", () => {
-            // cleanup before the next turn starts
-            this.wordAPI.cleanup();
-            this.wordAPI.broadcastWordUpdate(this.session);
-
-            this.artist.isArtist = false;
-            this.players.forEach((p) => {
-                p.hasGuessed = false;
-            });
-
-            moveToNextState();
-        });
     }
 
     init(): void {
-        console.log("Turn", this.artist.getMetadata());
         this.EMIT("TURN_START", this);
     }
 

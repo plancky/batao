@@ -1,9 +1,11 @@
+import { GameSettingsOverlay } from "./GameSettingsOverlay";
 import { TurnResultOverlay } from "./TurnResultOverlay";
 import { WordSelOverlay } from "./WordSelOverlay";
 
 export function DrawBoardOverlay() {
     return (
         <>
+            <GameSettingsOverlay />
             <WordSelOverlay />
             <TurnResultOverlay />
         </>

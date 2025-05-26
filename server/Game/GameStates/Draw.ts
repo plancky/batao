@@ -76,6 +76,7 @@ export class Draw extends GameState {
 
     playerHasGuessed(player: Player) {
         this.turn.gPlayers.add(player);
+        this.turn.wordAPI.broadcastWordObj(this.session, player)
         player.hasGuessed = true;
         this.turn.EMIT("HAS_GUESSED", player);
         // Broadcast text message to everyone that the word has been guessed by the player
@@ -115,7 +116,7 @@ export class Draw extends GameState {
         } as ChatMsgClientAction);
     }
 
-    nextState(): GameState {
+    next(): GameState {
         return new Result(this.game, this.turn);
     }
 }

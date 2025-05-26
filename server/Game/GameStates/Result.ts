@@ -35,7 +35,7 @@ export class Result extends GameState {
         console.log(payload);
     }
 
-    nextState(): GameState {
+    next(): GameState {
         return new Waiting(this.game);
     }
 }

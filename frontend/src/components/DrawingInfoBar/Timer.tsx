@@ -19,8 +19,6 @@ export default function Timer() {
             const { type, payload } = JSON.parse(event.data) as ClientAction;
             switch (type) {
                 case ClientActionTypes.CLOCK_UPDATE:
-                    console.log(payload.value);
-                    //timer.current = payload?.value;
                     setTimer(payload.value);
                     break;
 

@@ -15,7 +15,12 @@ export type StartServerAction = {
     payload: GameConfig;
 };
 
-type GameConfig = any;
+type GameConfig = {
+    drawtime?: number;
+    rounds?: number;
+    hints?: number;
+    words?: number;
+};
 
 export type WordSelServerAction = {
     type: ServerActionTypes.SEL_WORD;

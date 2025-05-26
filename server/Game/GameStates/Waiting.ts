@@ -24,7 +24,6 @@ export class Waiting extends GameState {
     }
 
     handleChatMessage(player: Player, payload: ChatInputPayload): void {
-        console.log("Message_received: ", payload);
         const { text, timestamp } = payload;
 
         this.session.broadcastMessageToAllPlayers({
@@ -33,7 +32,7 @@ export class Waiting extends GameState {
         } as ChatMsgClientAction);
     }
 
-    nextState(): GameState {
+    next(): GameState {
         return new WordSel(this.game, this.turn);
     }
 }

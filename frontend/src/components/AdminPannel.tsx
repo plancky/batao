@@ -1,10 +1,10 @@
 import { useCallback } from "react";
 
 import { ServerActionTypes } from "$/server-types/constants";
-import { StartServerAction } from "$/server-types/server-msgs";
+import { GameConfig, StartServerAction } from "$/server-types/server-msgs";
 import { SessionStates } from "$/session/constants";
 
-import { useSessionState, useUserInfo } from "@/lib/hooks";
+import { useGameConfig, useSessionState, useUserInfo } from "@/lib/hooks";
 
 import { Button } from "./ui/button";
 import { useWS } from "./ws-provider";
@@ -16,13 +16,15 @@ export default function AdminPannel({ ...props }: Props) {
         isConnected,
     } = useWS();
 
+    const { config } = useGameConfig();
+
     const reqStart = useCallback(() => {
         const data: StartServerAction = {
             type: ServerActionTypes.START,
-            payload: {},
+            payload: config,
         };
         if (sendMessage) sendMessage(data);
-    }, [ws]);
+    }, [isConnected, config]);
 
     const session_state = useSessionState();
     const { isOwner } = useUserInfo();
@@ -33,7 +35,9 @@ export default function AdminPannel({ ...props }: Props) {
         <>
             {sessionIsWaiting && isOwner && (
                 <div className="flex gap-5" {...props}>
-                    <Button onClick={reqStart} className={"cursor-pointer"}>Start</Button>
+                    <Button onClick={reqStart} className={"cursor-pointer"}>
+                        Start
+                    </Button>
                 </div>
             )}
         </>

@@ -4,6 +4,7 @@ import type { GameSession } from "@/GameSession/types";
 import type { Player } from "@/Player/Player";
 import type { CanvasActionPayload } from "@/types/canvas";
 import type { ChatInputPayload } from "@/types/chat";
+import type { GameConfig } from "@/types/server-msgs";
 
 import { Clock } from "./Clock";
 import type { GameState } from "./GameStates/State";
@@ -25,23 +26,26 @@ export class Game extends EventEmitter<Events> {
     // Config of the game set by the owner
     config!: {
         rounds: number;
-        turnDuration: number;
+        drawtime: number;
+        hints: number;
+        wordCount: number;
         customWords?: string[];
     };
 
     // clock
     clock: Clock = new Clock();
 
-    // the clock tick reference variable
-    private _tick: number = 0;
-    // the clock interval reference variable
-    private clockIntervalId!: NodeJS.Timeout;
-
     // state variables
     // reference to current Round instance
     currRound!: Round;
     // current round number
-    currRoundCount!: number;
+    _round!: number;
+    get currRoundCount() {
+        return this._round;
+    }
+    set currRoundCount(val: number) {
+        this._round = val > this.config.rounds ? this._round : val;
+    }
     // reference to current Turn instance
     currTurn!: Turn;
     pickedWords: string[] = [];
@@ -50,20 +54,14 @@ export class Game extends EventEmitter<Events> {
 
     state!: GameState;
 
-    private globalScores!: {
-        [key: string]: number;
-    };
-
-    private activeRoundScores!: {
-        [key: string]: number;
-    };
-
-    constructor(session: GameSession, players: Set<Player>) {
+    constructor(session: GameSession, players: Set<Player>, config: GameConfig) {
         super();
         this.guessWords = ["cat", "dog", "neanderthal", "gunda", "not-like-us"];
         this.config = {
-            rounds: 1,
-            turnDuration: 60,
+            rounds: config?.rounds ?? 3,
+            drawtime: config?.drawtime ?? 60,
+            wordCount: config?.words ?? 3,
+            hints: config?.hints ?? 3,
         };
 
         this.session = session;
@@ -84,12 +82,12 @@ export class Game extends EventEmitter<Events> {
     }
 
     runNextRound() {
-        this.currRoundCount++;
-        if (this.currRoundCount > this.config.rounds) {
+        if (this._round + 1 > this.config.rounds) {
             this.emit("GAME_END");
             return 0;
         }
-        console.log("Round: ", this.currRoundCount);
+        this.currRoundCount++;
+        console.log("Round: ", this._round);
         const round = new Round(this, this.session, this.players);
         round.init();
         this.currRound = round;

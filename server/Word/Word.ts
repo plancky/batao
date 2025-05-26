@@ -1,5 +1,6 @@
 import { getRandomElement } from "@/Game/utils";
 import type { GameSession } from "@/GameSession/types";
+import type { Player } from "@/Player/Player";
 import type { WordClientAction } from "@/types/client-msgs";
 import { ClientActionTypes } from "@/types/constants";
 
@@ -52,13 +53,23 @@ export class Word {
         this.guessWordObj = {};
     }
 
-    broadcastWordUpdate(session: GameSession) {
-        session.broadcastMessageToAllPlayers({
+    broadcastWordObj(session: GameSession, player: Player) {
+        player.sendMsg({
             type: ClientActionTypes.WORD,
             payload: {
-                word: Object.values(this.guessWordObj),
+                word: Object.values(this.wordObj),
             },
         } as WordClientAction);
+    }
+
+    broadcastGuessWordObj(session: GameSession, exclude_players?: Set<Player>) {
+        session.broadcastMessageToAllPlayers(
+            {
+                type: ClientActionTypes.WORD,
+                payload: { word: Object.values(this.guessWordObj) },
+            } as WordClientAction,
+            exclude_players,
+        );
     }
 
     /**

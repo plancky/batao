@@ -1,3 +1,5 @@
+// Game Config
+export const GAME_CONFIG_QK = ["game_config"];
 // essential user info, received on first connection
 // included key, id, name
 export const USER_INFO_QUERY_KEY = ["user_info"];

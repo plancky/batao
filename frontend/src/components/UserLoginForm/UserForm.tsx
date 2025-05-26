@@ -55,7 +55,7 @@ export function InputForm({ ...props }: Props) {
                             <FormItem>
                                 <FormLabel>Username</FormLabel>
                                 <FormControl>
-                                    <Input placeholder="random cat" {...field} />
+                                    <Input placeholder="random cat"  {...field}  />
                                 </FormControl>
                                 <FormDescription>This is your public display name.</FormDescription>
                                 <FormMessage />

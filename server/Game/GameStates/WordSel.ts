@@ -29,7 +29,7 @@ export class WordSel extends GameState {
         console.log(payload);
     }
 
-    nextState(): GameState {
+    next(): GameState {
         return new Draw(this.game, this.turn);
     }
 }

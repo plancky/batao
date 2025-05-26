@@ -10,9 +10,11 @@ import { essentialUserInfo } from "$/server-types/client-msgs";
 import { GameStates } from "$/server-types/game-constants";
 import { TurnResultObj } from "$/server-types/game-state";
 import { PlayerMetadata, PlayerState } from "$/server-types/player";
+import { GameConfig } from "$/server-types/server-msgs";
 import { SessionStates } from "$/session/constants";
 
 import {
+    GAME_CONFIG_QK,
     GAME_STATE_QK,
     MESSAGES_QUERY_KEY,
     playerInfoKeys,
@@ -43,7 +45,7 @@ export function useUserInfo() {
 
     const { data = {} as PlayerMetadata } = useQuery({
         queryKey: playerInfoKeys.player(user_info.id),
-        queryFn: () => ({}) as any,
+        queryFn: () => ({}) as PlayerMetadata,
         staleTime: Infinity,
     });
 
@@ -138,4 +140,14 @@ export function useTurnResult() {
     });
 
     return { result, ...props };
+}
+
+export function useGameConfig() {
+    const { data: config = {} as GameConfig, ...props } = useQuery({
+        queryKey: GAME_CONFIG_QK,
+        queryFn: () => ({}) as GameConfig,
+        staleTime: Infinity,
+    });
+
+    return { config, ...props };
 }
