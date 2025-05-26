@@ -16,12 +16,7 @@ Make sure you have [Bun](https://bun.sh/) installed on your system, this will he
 
 To run locally, clone the repo and:-
 
-1. Build frontend
-    ```bash
-    cd frontend
-    bun i && bun run build
-    ```
-2. set env variables,
+1. set env variables,
 
     - generate hash for your custom passcode
         ```bash
@@ -35,8 +30,19 @@ To run locally, clone the repo and:-
     APP_URL="http://localhost:3000"
     CREATION_PASSCODE_HASH=<passcode-hash> // optional in dev
     ```
-
-3. Run the server
+2. Using Docker, simply build and run the docker image.
+    ```bash
+    docker build -t batao . 
+    docker run --rm -p 3000:3000 --name batao_container batao
+    ```
+    OR
+    
+    2.2. Build frontend
+    ```bash
+    cd frontend
+    bun i && bun run build
+    ```
+    2.3. Run the server
     ```bash
     // cd into the root of the repo
     bun i
