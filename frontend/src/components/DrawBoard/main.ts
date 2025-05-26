@@ -1,4 +1,4 @@
-import { CanvasActions, ServerActionTypes } from "$/server-types/constants";
+import { CanvasActions, ServerActionTypes } from "$/server-types/constants/constants";
 import { ServerAction } from "$/server-types/server-msgs";
 
 import {

@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from "react";
 
-import { ServerActionTypes } from "$/server-types/constants";
-import { GameStates } from "$/server-types/game-constants";
+import { ServerActionTypes } from "$/server-types/constants/constants";
+import { GameStates } from "$/server-types/constants/game-constants";
 import { ServerAction } from "$/server-types/server-msgs";
 import clsx from "clsx";
 

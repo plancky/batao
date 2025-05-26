@@ -1,7 +1,7 @@
 import { QueryClient } from "@tanstack/react-query";
 
 import { ClientAction } from "$/server-types/client-msgs";
-import { ChatMessageClass, ChatMessageTypes, ClientActionTypes } from "$/server-types/constants";
+import { ChatMessageClass, ChatMessageTypes, ClientActionTypes } from "$/server-types/constants/constants";
 
 import { MESSAGES_QUERY_KEY } from "@/lib/constants/query_keys";
 

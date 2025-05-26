@@ -2,7 +2,7 @@ import React, { FormEvent, Ref, useCallback, useEffect, useState } from "react";
 import { RefObject } from "hono/jsx";
 import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { ServerActionTypes } from "$/server-types/constants";
+import { ServerActionTypes } from "$/server-types/constants/constants";
 import { ChatInputServerAction } from "$/server-types/server-msgs";
 
 import { SendMessage } from "../ws-provider";

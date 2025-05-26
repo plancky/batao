@@ -1,6 +1,6 @@
 import React from "react";
 
-import { ChatMessageTypes } from "$/server-types/constants";
+import { ChatMessageTypes } from "$/server-types/constants/constants";
 
 import { ChatMessage } from "../types";
 import { AdminMessage } from "./AdminMessage";

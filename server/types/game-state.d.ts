@@ -1,4 +1,4 @@
-import type { GameStates } from "./game-constants";
+import type { GameStates } from "./constants/game-constants";
 
 export type GameStateUpdatePayload = TurnResultStatePayload | GenericStateUpdatePayload;
 

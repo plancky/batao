@@ -6,9 +6,9 @@ import type {
     ChatMsgClientAction,
     GameStateUpdateClientAction,
 } from "@/types/client-msgs";
-import { ChatMessageClass, ChatMessageTypes, ClientActionTypes } from "@/types/constants";
+import { ChatMessageClass, ChatMessageTypes, ClientActionTypes } from "@/types/constants/constants";
 
-import { GameStates } from "../../types/game-constants";
+import { GameStates } from "../../types/constants/game-constants";
 import type { Game } from "../Game";
 import type { Turn } from "../Turn";
 import { Result } from "./Result";

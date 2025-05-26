@@ -17,7 +17,7 @@ import {
     ChatMessageTypes,
     ClientActionTypes,
     ServerActionTypes,
-} from "@/types/constants";
+} from "@/types/constants/constants";
 import type { PlayerMetadata, PlayerState } from "@/types/player";
 import type { GameConfig, ServerAction } from "@/types/server-msgs";
 import { randomUUIDv7 } from "bun";
@@ -147,7 +147,7 @@ export class Player extends EventEmitter<Events> {
             },
         } as PlayersStateUpdateClientAction);
     }
-    
+
     sendMsg(data: ClientAction) {
         try {
             if (this?.ws?.readyState == WebSocket.OPEN) this.ws.send(JSON.stringify(data));

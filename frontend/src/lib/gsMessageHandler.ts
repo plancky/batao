@@ -1,7 +1,7 @@
 import { QueryClient } from "@tanstack/react-query";
 
 import { ClientAction } from "$/server-types/client-msgs";
-import { ClientActionTypes } from "$/server-types/constants";
+import { ClientActionTypes } from "$/server-types/constants/constants";
 
 import { USER_INFO_QUERY_KEY } from "./constants/query_keys";
 import { playersInfoUpdateListener } from "./listeners/players-info";

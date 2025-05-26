@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import { ClientAction, letterObj } from "$/server-types/client-msgs";
-import { ClientActionTypes } from "$/server-types/constants";
+import { ClientActionTypes } from "$/server-types/constants/constants";
 
 import { useWS } from "../ws-provider";
 

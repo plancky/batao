@@ -7,7 +7,7 @@ import type {
     WordClientAction,
     WordOptionsClientAction,
 } from "@/types/client-msgs";
-import { CanvasActions, ClientActionTypes } from "@/types/constants";
+import { CanvasActions, ClientActionTypes } from "@/types/constants/constants";
 import type { TurnResultObj, TurnResultStatePayload } from "@/types/game-state";
 import type { TurnPlayerScoreObj, TurnScoreObj } from "@/types/player";
 import type { GameConfig } from "@/types/server-msgs";

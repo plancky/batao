@@ -1,5 +1,5 @@
 import type { PathObj } from "../../frontend/src/components/DrawBoard/types/draw";
-import type { CanvasActions } from "./constants";
+import type { CanvasActions } from "./constants/constants";
 
 export type CanvasActionPayload =
     | DrawActionPayload

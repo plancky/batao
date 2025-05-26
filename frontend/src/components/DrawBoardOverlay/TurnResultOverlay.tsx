@@ -1,4 +1,4 @@
-import { GameStates } from "$/server-types/game-constants";
+import { GameStates } from "$/server-types/constants/game-constants";
 
 import { useGameState, useTurnResult, useWordSelWords } from "@/lib/hooks";
 

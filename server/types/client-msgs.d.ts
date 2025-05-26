@@ -1,9 +1,9 @@
-import type { GameStates } from "@/types/game-constants";
+import type { GameStates } from "@/types/constants/game-constants";
 import type { SessionStates } from "@/GameSession/constants";
 
 import type { CanvasActionPayload } from "./canvas";
 import type { ChatMessage } from "./chat";
-import { CanvasActions, ClientActionTypes, ServerActionTypes } from "./constants";
+import { CanvasActions, ClientActionTypes, ServerActionTypes } from "./constants/constants";
 import type { PlayerMetadata, PlayerState as PlayerMetadata, PlayerState } from "./player";
 import type { GameStateUpdatePayload } from "./game-state";
 import type { letterObj } from "../Word/Word";

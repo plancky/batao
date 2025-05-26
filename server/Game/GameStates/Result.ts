@@ -2,14 +2,14 @@ import type { Player } from "@/Player/Player";
 import type { CanvasActionPayload } from "@/types/canvas";
 import type { ChatInputPayload } from "@/types/chat";
 import type { CanvasClientAction, GameStateUpdateClientAction } from "@/types/client-msgs";
-import { ClientActionTypes } from "@/types/constants";
+import { ClientActionTypes } from "@/types/constants/constants";
 import type {
     GameStateUpdatePayload,
     TurnResultObj,
     TurnResultStatePayload,
 } from "@/types/game-state";
 
-import { GameStates } from "../../types/game-constants";
+import { GameStates } from "../../types/constants/game-constants";
 import type { Game } from "../Game";
 import type { Turn } from "../Turn";
 import { GameState } from "./State";

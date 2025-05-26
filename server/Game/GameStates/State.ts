@@ -2,10 +2,10 @@ import type { GameSession } from "@/GameSession/types";
 import type { Player } from "@/Player/Player";
 import type { CanvasActionPayload } from "@/types/canvas";
 import type { GameStateUpdateClientAction } from "@/types/client-msgs";
-import { ClientActionTypes } from "@/types/constants";
+import { ClientActionTypes } from "@/types/constants/constants";
 import type { GameStateUpdatePayload } from "@/types/game-state";
 
-import type { GameStates } from "../../types/game-constants";
+import type { GameStates } from "../../types/constants/game-constants";
 import type { Game } from "../Game";
 import type { Turn } from "../Turn";
 import type { ChatInputPayload } from "@/types/chat";

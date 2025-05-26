@@ -1,4 +1,4 @@
-import type { ChatMessageClass, ChatMessageTypes } from "./constants";
+import type { ChatMessageClass, ChatMessageTypes } from "./constants/constants";
 
 export type ChatMessage = AdminChatMessage | UserChatMessage;
 

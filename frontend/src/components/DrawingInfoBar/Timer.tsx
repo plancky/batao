@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import { ClientAction } from "$/server-types/client-msgs";
-import { ClientActionTypes } from "$/server-types/constants";
+import { ClientActionTypes } from "$/server-types/constants/constants";
 
 import Clock from "../icons/clock.svg?react";
 import { useWS } from "../ws-provider";

@@ -1,8 +1,8 @@
 import { QueryClient } from "@tanstack/react-query";
 
 import { ClientAction } from "$/server-types/client-msgs";
-import { ClientActionTypes } from "$/server-types/constants";
-import { GameStates } from "$/server-types/game-constants";
+import { ClientActionTypes } from "$/server-types/constants/constants";
+import { GameStates } from "$/server-types/constants/game-constants";
 import { TurnResultObj } from "$/server-types/game-state";
 
 import { GAME_STATE_QK, SESSION_STATE_QK, TURN_RESULTS_QK } from "../constants/query_keys";

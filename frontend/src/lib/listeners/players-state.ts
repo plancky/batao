@@ -1,7 +1,7 @@
 import { QueryClient } from "@tanstack/react-query";
 
 import { ClientAction } from "$/server-types/client-msgs";
-import { ClientActionTypes } from "$/server-types/constants";
+import { ClientActionTypes } from "$/server-types/constants/constants";
 import { PlayerState } from "$/server-types/player";
 
 import { playerStateKeys, SEL_WORDS_QK } from "../constants/query_keys";

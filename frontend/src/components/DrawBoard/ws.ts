@@ -1,5 +1,5 @@
 import { ClientAction } from "$/server-types/client-msgs";
-import { CanvasActions, ClientActionTypes, ServerActionTypes } from "$/server-types/constants";
+import { CanvasActions, ClientActionTypes, ServerActionTypes } from "$/server-types/constants/constants";
 
 import { PathObj } from "./types/draw";
 import { DrawingBoardInstanceType, PathTypes } from "./types/types";

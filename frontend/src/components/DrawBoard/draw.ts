@@ -1,5 +1,5 @@
 // --- Drawing Logic ---
-import { CanvasActions, ServerActionTypes } from "$/server-types/constants";
+import { CanvasActions, ServerActionTypes } from "$/server-types/constants/constants";
 import { CanvasServerAction } from "$/server-types/server-msgs";
 
 import { type DotPathObj, type PathObj, type SegmentPathObject } from "./types/draw";

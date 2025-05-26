@@ -2,7 +2,7 @@ import type { WordListCode } from "@/Word/types";
 
 import type { CanvasActionPayload } from "./canvas";
 import type { ChatInputPayload } from "./chat";
-import { CanvasActions, ClientActionTypes, ServerActionTypes } from "./constants";
+import { CanvasActions, ClientActionTypes, ServerActionTypes } from "./constants/constants";
 import type { PlayerMetadata, PlayerState } from "./player";
 
 // Server Action types

@@ -3,7 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { GameConfig } from "$/server-types/server-msgs";
-import { WORD_LIST_CODES, WORD_LIST_NAMES } from "$/server-types/word-consts";
+import { WORD_LIST_CODES, WORD_LIST_NAMES } from "$/server-types/constants/word-consts";
 import { SessionStates } from "$/session/constants";
 import { useForm } from "react-hook-form";
 import { z } from "zod";

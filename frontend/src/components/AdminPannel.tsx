@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 
-import { ServerActionTypes } from "$/server-types/constants";
+import { ServerActionTypes } from "$/server-types/constants/constants";
 import { GameConfig, StartServerAction } from "$/server-types/server-msgs";
 import { SessionStates } from "$/session/constants";
 

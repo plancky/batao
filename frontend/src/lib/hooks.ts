@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 
 import { ChatMessage } from "$/server-types/chat";
 import { essentialUserInfo } from "$/server-types/client-msgs";
-import { GameStates } from "$/server-types/game-constants";
+import { GameStates } from "$/server-types/constants/game-constants";
 import { TurnResultObj } from "$/server-types/game-state";
 import { PlayerMetadata, PlayerState } from "$/server-types/player";
 import { GameConfig } from "$/server-types/server-msgs";

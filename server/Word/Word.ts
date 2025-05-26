@@ -2,7 +2,7 @@ import { getRandomElement } from "@/Game/utils";
 import type { GameSession } from "@/GameSession/types";
 import type { Player } from "@/Player/Player";
 import type { WordClientAction } from "@/types/client-msgs";
-import { ClientActionTypes } from "@/types/constants";
+import { ClientActionTypes } from "@/types/constants/constants";
 
 export type letterObj = {
     index: number;

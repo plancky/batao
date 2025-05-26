@@ -10,7 +10,7 @@ import type {
     PlayerIsOwnerClientAction,
     PlayersStateUpdateClientAction,
 } from "@/types/client-msgs";
-import { ChatMessageClass, ChatMessageTypes, ClientActionTypes } from "@/types/constants";
+import { ChatMessageClass, ChatMessageTypes, ClientActionTypes } from "@/types/constants/constants";
 import type { GameConfig } from "@/types/server-msgs";
 import { randomUUIDv7 } from "bun";
 
