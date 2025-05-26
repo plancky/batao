@@ -28,6 +28,7 @@
         // paths
         "paths": {
             "@/shared/*": ["./shared/*"],
+            "@/types/*": ["./server/types/*"],
             "@/*": ["./server/*"]
         }
     }

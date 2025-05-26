@@ -1,0 +1,65 @@
+/* Ensure canvas takes available space and has a border */
+#drawingCanvas {
+    touch-action: none; /* Prevent scrolling on canvas touch */
+    cursor: crosshair; /* Pencil cursor */
+    display: block; /* Remove extra space below canvas */
+    background-color: #36393f; /* Discord dark background */
+}
+/* Style for the active color button */
+.color-button.active {
+    transform: scale(1.15); /* Slightly larger scale */
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.3); /* Lighter shadow for dark bg */
+    border-color: #ffffff; /* White border for active */
+    border-width: 3px;
+}
+/* Style for control buttons */
+.control-button {
+    transition:
+        background-color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease; /* Added box-shadow transition */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+}
+.control-button:hover {
+    transform: translateY(-1px); /* Subtle hover lift */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); /* Slightly stronger shadow on hover */
+}
+.control-button:active {
+    transform: translateY(0px);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); /* Smaller shadow on active */
+}
+/* Style for the slider thumb */
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px; /* Width of the thumb */
+    height: 16px; /* Height of the thumb */
+    background: #7289da; /* Discord blurple */
+    border-radius: 50%; /* Make it round */
+    cursor: pointer;
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background: #7289da;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none; /* Remove default border */
+}
+/* Style for the slider track */
+input[type="range"] {
+    background: #4f545c; /* Darker track */
+    border-radius: 999px; /* Rounded track */
+    height: 8px; /* Height of the track */
+}
+input[type="range"]::-webkit-slider-runnable-track {
+    height: 8px;
+    background: #4f545c;
+    border-radius: 999px;
+}
+input[type="range"]::-moz-range-track {
+    height: 8px;
+    background: #4f545c;
+    border-radius: 999px;
+}

@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { createFileRoute } from '@tanstack/react-router'
+import DrawBoard from '../components/DrawBoard'
 
 export const Route = createFileRoute('/')({
   component: HomeComponent,
@@ -7,8 +8,8 @@ export const Route = createFileRoute('/')({
 
 function HomeComponent() {
   return (
-    <div className="p-2 ">
-      <h3>Welcome Home!</h3>
+    <div className="min-h-screen flex">
+      <DrawBoard />
     </div>
   )
 }
