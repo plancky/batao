@@ -1,12 +1,21 @@
-import type { PathObj } from "frontend/src/components/DrawBoard/types/draw";
-
+import type { PathObj } from "../../frontend/src/components/DrawBoard/types/draw";
 import type { CanvasActions } from "./constants";
 
 export type CanvasActionPayload =
     | DrawActionPayload
     | ClearActionPayload
     | SaveStateActionPayload
-    | InitialStateActionPayload;
+    | InitialStateActionPayload
+    | ReqInitialStatePayload
+    | UndoActionPayload;
+
+export interface UndoActionPayload {
+    type: CanvasActions.CANVAS_REQ;
+}
+
+export interface UndoActionPayload {
+    type: CanvasActions.CANVAS_UNDO;
+}
 
 export interface DrawActionPayload {
     type: CanvasActions.CANVAS_DRAW;

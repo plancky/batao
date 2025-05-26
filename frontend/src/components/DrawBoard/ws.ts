@@ -1,8 +1,8 @@
-import { CanvasActions, ClientActionTypes, ServerActionTypes } from "$/server-types/constants";
 import { ClientAction } from "$/server-types/client-msgs";
+import { CanvasActions, ClientActionTypes, ServerActionTypes } from "$/server-types/constants";
 
 import { PathObj } from "./types/draw";
-import { DrawingBoardInstanceType } from "./types/types";
+import { DrawingBoardInstanceType, PathTypes } from "./types/types";
 import { sendWebSocketMessage } from "./ws-helpers";
 
 // --- WebSocket Connection ---
@@ -23,7 +23,10 @@ export function connectWebSocket(this: any, ws?: WebSocket) {
         statusIndicator?.classList.remove("connecting");
         statusIndicator?.classList.add("connected");
         // Optional: Request initial drawing state from server upon connection
-        sendWebSocketMessage(this.socket, { type: ServerActionTypes.CANVAS_REQ_INITIAL });
+        sendWebSocketMessage(this.socket, {
+            type: ServerActionTypes.CANVAS_ACTION,
+            payload: { type: ServerActionTypes.CANVAS_REQ_INITIAL },
+        });
     });
 
     socket?.addEventListener("message", (event) => {
@@ -52,25 +55,35 @@ export function connectWebSocket(this: any, ws?: WebSocket) {
 // --- Handle Incoming WebSocket Messages ---
 export function handleWebSocketMessage(this: DrawingBoardInstanceType, data: ClientAction) {
     const { drawPathObj, clearCanvasLocal } = this;
-    if (data.type == ClientActionTypes.CANVAS_ACTION) {
-        const { type } = data.payload;
+    const { type, payload } = data;
+    if (type == ClientActionTypes.CANVAS_ACTION) {
+        const { type } = payload;
         switch (type) {
-            // Draw segment received from another user
-            // console.debug(pathObj);
             case CanvasActions.CANVAS_DRAW: {
-                const { pathObj } = data.payload;
-                this.drawingState.pathsArray.push(pathObj);
-                drawPathObj.call(this, pathObj as PathObj, true);
+                const { pathObj } = payload;
+                if (pathObj.pathType == PathTypes.dot) {
+                    this.drawingState.pathsArray.push([pathObj]);
+                    drawPathObj.call(this, pathObj as PathObj, true);
+                } else if (pathObj.pathType == PathTypes.segement) {
+                    const paths = this.drawingState.pathsArray;
+                    const lastArr = paths[paths.length - 1];
+                    lastArr.push(pathObj);
+                    drawPathObj.call(this, pathObj, true);
+                }
+                break;
+            }
+            case CanvasActions.CANVAS_UNDO: {
+                this.undoLocal();
                 break;
             }
             case CanvasActions.CANVAS_CLEAR: {
                 // Clear canvas as requested by another user
-                clearCanvasLocal.call(this);
                 this.drawingState.pathsArray = [];
+                clearCanvasLocal.call(this);
                 break;
             }
             case CanvasActions.CANVAS_INITIAL_STATE: {
-                const { pathsStr } = data.payload;
+                const { pathsStr } = payload;
                 const ctx = this.ctx as CanvasRenderingContext2D;
                 const canvas = this.canvas as HTMLCanvasElement;
                 const {

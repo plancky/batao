@@ -3,6 +3,8 @@ export const enum CanvasActions {
     CANVAS_INITIAL_STATE = "canvas_initial_state",
     CANVAS_SAVE_PATHS = "canvas_save_data",
     CANVAS_CLEAR = "canvas_clear",
+    CANVAS_REQ = "req",
+    CANVAS_UNDO = "canvas_undo",
 }
 
 export const enum ChatMessageTypes {

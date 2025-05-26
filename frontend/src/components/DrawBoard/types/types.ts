@@ -1,4 +1,4 @@
-import { ServerAction } from "$/server-types/client-msgs";
+import { ServerAction } from "$/server-types/server-msgs";
 
 import { PathObj } from "./draw";
 
@@ -14,7 +14,8 @@ interface DrawingState {
     currentColor: string;
     currentLineWidth: number;
     canvasBackgroundColor: string;
-    pathsArray: any[];
+    pathsArray: PathObj[][];
+    redoArray: PathObj[][];
 }
 
 type ControlElements = {
@@ -23,6 +24,7 @@ type ControlElements = {
     pencilSizeSlider: HTMLInputElement;
     pencilSizeValue: HTMLElement;
     clearButton: HTMLElement;
+    undoButton: HTMLElement;
 };
 
 export abstract class DrawingBoardInterface {
@@ -57,6 +59,8 @@ export abstract class DrawingBoardInterface {
         size: number,
     ) => void;
     protected drawPathObj!: (X: PathObj, normalized?: boolean) => void;
+
+    protected abstract undoLocal(): void;
 
     protected drawHandlers!: {
         startDrawing: (event: MouseEvent | TouchEvent) => void;

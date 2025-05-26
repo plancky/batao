@@ -2,8 +2,12 @@ import EventEmitter from "node:events";
 
 import type { GameSession } from "@/GameSession/types";
 import type { Player } from "@/Player/Player";
-import type { WordClientAction, WordOptionsClientAction } from "@/types/client-msgs";
-import { ClientActionTypes } from "@/types/constants";
+import type {
+    CanvasClientAction,
+    WordClientAction,
+    WordOptionsClientAction,
+} from "@/types/client-msgs";
+import { CanvasActions, ClientActionTypes } from "@/types/constants";
 import type { TurnResultObj, TurnResultStatePayload } from "@/types/game-state";
 import type { TurnPlayerScoreObj, TurnScoreObj } from "@/types/player";
 import type { GameConfig } from "@/types/server-msgs";
@@ -110,6 +114,13 @@ export class Turn extends EventEmitter<Events> {
             this.players.forEach((p) => {
                 p.hasGuessed = false;
             });
+
+            this.session.broadcastMessageToAllPlayers({
+                type: ClientActionTypes.CANVAS_ACTION,
+                payload: {
+                    type: CanvasActions.CANVAS_CLEAR,
+                },
+            } as CanvasClientAction);
 
             this.moveToNextState();
         });

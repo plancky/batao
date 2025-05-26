@@ -3,10 +3,17 @@ import { RefObject, useEffect, useRef } from "react";
 import { useUserState } from "@/lib/hooks";
 
 import { DrawBoardOverlay } from "../DrawBoardOverlay/DrawBoardOverlay";
+import Undo from "../icons/undo.svg?react";
 import { useWS } from "../ws-provider";
 import { DrawingBoard } from "./main";
 
 interface Props extends React.HTMLAttributes<HTMLElement> {}
+
+declare global {
+    interface Window {
+        draw: DrawingBoard;
+    }
+}
 
 export default function DrawBoard({ ...props }: Props) {
     const {
@@ -20,6 +27,7 @@ export default function DrawBoard({ ...props }: Props) {
             drawAPI.current = new DrawingBoard(document.querySelector("#drawContainer")!);
             drawAPI.current?.makeSpectator();
             drawAPI.current?.initialize(ws!.current);
+            window.draw = drawAPI.current;
         };
 
         if (document.readyState !== "loading") {
@@ -48,56 +56,50 @@ export default function DrawBoard({ ...props }: Props) {
 
     return (
         <>
-            <div id="drawContainer" className="flex flex-col w-full max-h-screen gap-5 ">
-                <div className="w-full bg-gray-900 relative aspect-video #h-full #flex-1 rounded-lg shadow-lg overflow-hidden border border-gray-600">
+            <div id="drawContainer" className="flex max-h-screen w-full flex-col gap-5">
+                <div className="#h-full #flex-1 relative aspect-video w-full overflow-hidden rounded-lg border border-gray-600 bg-gray-900 shadow-lg">
                     <DrawBoardOverlay />
                     <canvas
                         id="drawingCanvas"
                         className="rounded-lg [.spectator_&]:pointer-events-none"
                     ></canvas>
-                    {/*
-                        <div
-                            className="h-5 w-5 block [&.connected]:bg-green-400 bg-red-500 rounded-full absolute right-5 top-5"
-                            id="statusIndicator"
-                        ></div>
-                        */}
                 </div>
 
-                <div className="controls [.spectator_&]:hidden relative w-full bg-primary/15 p-4 rounded-lg shadow-md flex flex-wrap items-center justify-center gap-3 md:gap-4  border border-gray-600">
-                    <div className="flex gap-2 w-full items-center flex-wrap justify-center">
-                        <span className="text-sm font-medium mr-2">Color:</span>
+                <div className="controls bg-primary/15 relative flex w-full flex-wrap items-center justify-center gap-3 rounded-lg border border-gray-600 p-4 shadow-md md:gap-4 [.spectator_&]:hidden">
+                    <div className="flex w-full flex-wrap items-center justify-center gap-2">
+                        <span className="mr-2 text-sm font-medium">Color:</span>
                         <button
-                            className="color-button w-8 h-8 rounded-full border-2 border-gray-500 bg-white active"
+                            className="color-button active h-8 w-8 rounded-full border-2 border-gray-500 bg-white"
                             data-color="white"
                         ></button>
                         <button
-                            className="color-button w-8 h-8 rounded-full border-2 border-gray-500"
+                            className="color-button h-8 w-8 rounded-full border-2 border-gray-500"
                             style={{ backgroundColor: "#f04747" }}
                             data-color="#f04747"
                         ></button>{" "}
                         <button
-                            className="color-button w-8 h-8 rounded-full border-2 border-gray-500"
+                            className="color-button h-8 w-8 rounded-full border-2 border-gray-500"
                             style={{ backgroundColor: "#7289da" }}
                             data-color="#7289da"
                         ></button>{" "}
                         <button
-                            className="color-button w-8 h-8 rounded-full border-2 border-gray-500"
+                            className="color-button h-8 w-8 rounded-full border-2 border-gray-500"
                             style={{ backgroundColor: "#43b581" }}
                             data-color="#43b581"
                         ></button>{" "}
                         <button
-                            className="color-button w-8 h-8 rounded-full border-2 border-gray-500"
+                            className="color-button h-8 w-8 rounded-full border-2 border-gray-500"
                             style={{ backgroundColor: "#faa61a" }}
                             data-color="#faa61a"
                         ></button>{" "}
                         <button
-                            className="color-button w-8 h-8 rounded-full border-2 border-gray-500 bg-black"
+                            className="color-button h-8 w-8 rounded-full border-2 border-gray-500 bg-black"
                             data-color="black"
                         ></button>
                         <button
-                            className="color-button w-8 h-8 rounded-full border-2 border-gray-500 flex items-center justify-center text-gray-400"
+                            className="color-button flex h-8 w-8 items-center justify-center rounded-full border-2 border-gray-500 text-gray-400"
                             style={{ backgroundColor: "#36393f" }}
-                            data-color="#36393f"
+                            data-color="#82888f"
                             title="Eraser"
                         >
                             <svg
@@ -110,6 +112,12 @@ export default function DrawBoard({ ...props }: Props) {
                             >
                                 <path d="M8.086 2.207a2 2 0 0 1 2.828 0l3.879 3.879a2 2 0 0 1 0 2.828l-5.5 5.5A2 2 0 0 1 7.879 15H5.12a2 2 0 0 1-1.414-.586l-2.5-2.5a2 2 0 0 1 0-2.828l6.879-6.879zm.66 11.34L3.453 8.254 1.914 9.793a1 1 0 0 0 0 1.414l2.5 2.5a1 1 0 0 0 .707.293H7.88a1 1 0 0 0 .707-.293l.16-.16z" />
                             </svg>
+                        </button>
+                        <button
+                            className="control-button ml-4 flex h-8 w-8 cursor-pointer items-center justify-center rounded-full border-2 border-gray-500 p-1 text-gray-400"
+                            id="undoButton"
+                        >
+                            <Undo />
                         </button>
                     </div>
 
@@ -126,14 +134,14 @@ export default function DrawBoard({ ...props }: Props) {
                             value="5"
                             className="w-24 cursor-pointer appearance-none"
                         />
-                        <span id="pencilSizeValue" className="text-sm text-gray-300 w-6 text-right">
+                        <span id="pencilSizeValue" className="w-6 text-right text-sm text-gray-300">
                             5
                         </span>
                     </div>
 
                     <button
                         id="clearButton"
-                        className="control-button bg-red-600 hover:bg-red-700 text-white font-semibold py-1 px-3 rounded-md shadow text-sm"
+                        className="control-button rounded-md bg-red-600 px-3 py-1 text-sm font-semibold text-white shadow hover:bg-red-700"
                     >
                         Clear
                     </button>

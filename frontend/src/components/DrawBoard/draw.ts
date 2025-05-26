@@ -32,7 +32,7 @@ export function startDrawingHandler(this: DrawingBoardInstanceType, event: Mouse
         size: currentLineWidth / SIZE_NORMALIZING_FACTOR,
     };
 
-    this.drawingState.pathsArray.push(pathObj);
+    this.drawingState.pathsArray.push([pathObj]);
     drawPathObj.call(this, pathObj, true);
 
     // Send start draw event to server
@@ -70,7 +70,9 @@ export function mouseMoveHandler(this: DrawingBoardInstanceType, event: MouseTou
         size: currentLineWidth / SIZE_NORMALIZING_FACTOR,
     };
 
-    this.drawingState.pathsArray.push(pathObj);
+    const paths = this.drawingState.pathsArray;
+    const lastArr = paths[paths.length - 1];
+    lastArr.push(pathObj);
     drawPathObj.call(this, pathObj, true);
 
     // Update last position for the next segment

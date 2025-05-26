@@ -10,7 +10,8 @@ import {
     startDrawingHandler,
     stopDrawingHandler,
 } from "./draw";
-import { DrawingBoardInterface } from "./types/types";
+import { PathObj } from "./types/draw";
+import { DrawingBoardInterface, PathTypes } from "./types/types";
 import { connectWebSocket, handleWebSocketMessage } from "./ws";
 import { sendWebSocketMessage } from "./ws-helpers";
 
@@ -31,6 +32,7 @@ export class DrawingBoard extends DrawingBoardInterface {
             currentLineWidth: 5,
             canvasBackgroundColor: "#82888f",
             pathsArray: [],
+            redoArray: [],
         };
 
         this.drawHandlers = {
@@ -45,11 +47,30 @@ export class DrawingBoard extends DrawingBoardInterface {
             pencilSizeSlider: container.querySelector("#pencilSize") as HTMLInputElement,
             pencilSizeValue: container.querySelector("#pencilSizeValue")!,
             clearButton: container.querySelector("#clearButton")!,
+            undoButton: container.querySelector("#undoButton")!,
         };
 
         const ws_url = new URL("/wsgs", window.location.origin);
         ws_url.protocol = "ws";
         this.WEBSOCKET_URL = ws_url.toString();
+    }
+
+    undo() {
+        this.undoLocal();
+        sendWebSocketMessage(this.socket!, {
+            type: ServerActionTypes.CANVAS_ACTION,
+            payload: {
+                type: CanvasActions.CANVAS_UNDO,
+            },
+        });
+    }
+
+    protected undoLocal() {
+        const popObj = this.drawingState.pathsArray.pop();
+        if (popObj) this.drawingState.redoArray.unshift(popObj);
+
+        this.clearCanvasLocal();
+        this.re_draw();
     }
 
     makeSpectator() {
@@ -64,7 +85,8 @@ export class DrawingBoard extends DrawingBoardInterface {
 
     protected setupButtons = () => {
         // Get controls
-        const { colorButtons, pencilSizeSlider, pencilSizeValue, clearButton } = this.controls;
+        const { colorButtons, pencilSizeSlider, pencilSizeValue, clearButton, undoButton } =
+            this.controls;
         const { canvas, ctx } = this;
 
         // Color selection
@@ -104,6 +126,10 @@ export class DrawingBoard extends DrawingBoardInterface {
                 },
             } as ServerAction);
         });
+
+        undoButton.addEventListener("click", () => {
+            this.undo();
+        });
     };
 
     // re_draw from pathObjsArray
@@ -112,8 +138,10 @@ export class DrawingBoard extends DrawingBoardInterface {
 
         const { pathsArray } = this.drawingState;
 
-        pathsArray.forEach((pathObj, index, length) => {
-            drawPathObj.call(this, pathObj, true);
+        pathsArray?.forEach((stroke, index, length) => {
+            stroke?.forEach((pathObj, index, length) => {
+                drawPathObj.call(this, pathObj, true);
+            });
         });
     };
 

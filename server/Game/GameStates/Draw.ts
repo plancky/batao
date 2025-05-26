@@ -24,10 +24,13 @@ export class Draw extends GameState {
 
     handleCanvasAction(player: Player, payload: CanvasActionPayload): void {
         if (player.isArtist)
-            this.session.broadcastMessageToAllPlayers({
-                type: ClientActionTypes.CANVAS_ACTION,
-                payload: payload,
-            } as CanvasClientAction);
+            this.session.broadcastMessageToAllPlayers(
+                {
+                    type: ClientActionTypes.CANVAS_ACTION,
+                    payload: payload,
+                } as CanvasClientAction,
+                player,
+            );
     }
 
     handleChatMessage(player: Player, payload: ChatInputPayload): void {
@@ -76,7 +79,7 @@ export class Draw extends GameState {
 
     playerHasGuessed(player: Player) {
         this.turn.gPlayers.add(player);
-        this.turn.wordAPI.broadcastWordObj(this.session, player)
+        this.turn.wordAPI.broadcastWordObj(this.session, player);
         player.hasGuessed = true;
         this.turn.EMIT("HAS_GUESSED", player);
         // Broadcast text message to everyone that the word has been guessed by the player
