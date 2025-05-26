@@ -1,0 +1,149 @@
+:root {
+    --page-padding: 80px;
+    --mobile-page-padding: 32px;
+    --page-width: 1480px;
+    @apply mobile-padding lg:desktop-padding;
+}
+
+@utility desktop-padding {
+    --padding-inline: var(--page-padding, 80px);
+}
+
+@utility mobile-padding {
+    --padding-inline: clamp(var(--mobile-page-padding, 20px), 8vw, 64px);
+}
+
+/*Layout*/
+.content-grid,
+.full-width {
+    --padding-breakout: 2vw;
+    --content-max-width: var(--page-width);
+    --breakout-max-width: var(--page-width) + (var(--page-padding));
+
+    --content-area-width: min(100% - (var(--padding-inline) * 2), var(--content-max-width));
+    --breakout-size: calc((var(--breakout-max-width) - var(--content-max-width)) / 2);
+
+    display: grid;
+    grid-template-columns:
+        [full-width-start] minmax(calc(var(--padding-inline) - var(--breakout-size)), 1fr)
+        [breakout-start] minmax(0, var(--breakout-size))
+        [content-start] calc(var(--content-area-width) / 2) [middle] calc(
+            var(--content-area-width) / 2
+        )
+        [content-end] minmax(0, var(--breakout-size))
+        [breakout-end] minmax(calc(var(--padding-inline) - var(--breakout-size)), 1fr)
+        [full-width-end];
+}
+
+.content-grid
+    > :not(
+        .breakout,
+        .full-width,
+        .full-width-gridless,
+        .full-width-right,
+        .full-width-left,
+        .content-right,
+        .content-left,
+        .breakout-right,
+        .breakout-left,
+        .content-gap-right,
+        .content-gap-left
+    ),
+.full-width > :not(.breakout, .full-width, .full-width-gridless),
+.content-grid > .content {
+    grid-column: content;
+}
+
+.content-grid > .breakout,
+.full-width > .breakout {
+    grid-column: breakout;
+}
+
+.content-grid > .full-width,
+.breakout > .full-width {
+    grid-column: full-width;
+}
+
+@utility breakout {
+    grid-column: breakout;
+}
+
+@utility full-width-gridless {
+    grid-column: full-width;
+}
+
+@utility full-width-left {
+    grid-column: full-width-start / middle;
+}
+
+@utility full-width-right {
+    grid-column: middle / full-width-end;
+}
+
+@utility content-left {
+    grid-column: content-start / middle;
+}
+
+@utility content-right {
+    grid-column: middle / content-end;
+}
+
+@utility breakout-left {
+    grid-column: breakout-start / middle;
+}
+
+@utility breakout-right {
+    grid-column: middle / breakout-end;
+}
+
+@utility content-gap-left {
+    grid-column: full-width-start / breakout-start;
+}
+
+@utility content-gap-right {
+    grid-column: breakout-end / full-width-end;
+}
+
+@layer base {
+    nav#TableOfContents > ol {
+        @apply flex flex-col gap-1 py-2;
+    }
+
+    nav#TableOfContents > ol > li > ol {
+        @apply flex flex-col gap-1 ml-5 py-2;
+    }
+}
+
+@layer base {
+    div.image_container {
+        @apply breakout flex items-center justify-center bg-secondary px-2 py-10;
+    }
+
+    pre code {
+        @apply block;
+    }
+
+    div.content_container,
+    div.image_container,
+    .katex-display,
+    pre code {
+        @apply my-5 max-w-full overflow-auto px-2 py-5;
+    }
+
+    table {
+        @apply mx-auto my-5 max-w-full table-fixed overflow-scroll;
+    }
+
+    thead {
+        @apply bg-accent/50;
+    }
+
+    #articleContainer a {
+        @apply text-accent-foreground underline;
+    }
+
+    td,
+    th {
+        @apply border-y-2 border-primary px-4 py-2;
+    }
+}
