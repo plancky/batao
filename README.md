@@ -58,3 +58,7 @@ To run locally, clone the repo and:-
     - Bun game-server- ``` bun run dev ```
     - frontend- ```cd frontend && bun run dev```
     - In-production, the frontend is just build as static files and served by Hono.
+    
+## License
+
+All the source code in this repository is licensed under [BSD 4-Clause "Original" or "Old" License](./LICENSE.md)
