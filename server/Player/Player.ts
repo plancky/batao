@@ -147,6 +147,7 @@ export class Player extends EventEmitter<Events> {
             },
         } as PlayersStateUpdateClientAction);
     }
+    
     sendMsg(data: ClientAction) {
         try {
             if (this?.ws?.readyState == WebSocket.OPEN) this.ws.send(JSON.stringify(data));

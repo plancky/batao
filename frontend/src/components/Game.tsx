@@ -19,37 +19,42 @@ export function Game() {
         isConnected,
     } = useWS();
     const queryClient = useQueryClient();
+    useEffect(() => {
+        if (isConnected && ws) {
+            addMessageEventListener!((event) => {
+                const data: ClientAction = JSON.parse(event.data);
+                gameStateUpdateListener(data, queryClient);
+            });
+        }
+    }, [ws, isConnected, queryClient]);
+
     const {
         user_info: { id },
     } = useEssentialUserInfo();
     useEffect(() => {
-        if (addMessageEventListener && isConnected) {
-            addMessageEventListener((event) => {
-                const data: ClientAction = JSON.parse(event.data);
-                gameStateUpdateListener(data, queryClient);
-            });
-            addMessageEventListener((event) => {
+        if (isConnected && ws) {
+            addMessageEventListener!((event) => {
                 const data: ClientAction = JSON.parse(event.data);
                 playersStateUpdateListener(data, queryClient, id);
             });
         }
-    }, [isConnected]);
+    }, [isConnected, id, queryClient]);
 
     return (
         <>
             {!isConnected ? (
                 <div className="h-full">
-                    <div className="flex flex-col items-center justify-center h-full">
+                    <div className="flex h-full flex-col items-center justify-center">
                         <InputForm />
                     </div>
                 </div>
             ) : (
-                <div className="min-h-screen xl:max-h-screen py-10 grid xl:gap-5 h-full game-session-layout-mobile xl:game-session-layout-xl grid-rows-1 text-white">
+                <div className="game-session-layout-mobile xl:game-session-layout-xl grid h-full min-h-screen grid-rows-1 py-10 text-white xl:max-h-screen xl:gap-5">
                     <MainArea />
-                    <div className="xl:col-[left-sidebar] col-[left-half] row-span-1 row-start-2 xl:row-start-1">
+                    <div className="col-[left-half] row-span-1 row-start-2 xl:col-[left-sidebar] xl:row-start-1">
                         <LeftSidebar />
                     </div>
-                    <div className="xl:col-[right-sidebar] col-[right-half] row-span-1 row-start-2 xl:row-start-1">
+                    <div className="col-[right-half] row-span-1 row-start-2 xl:col-[right-sidebar] xl:row-start-1">
                         <ChatBoard />
                     </div>
                 </div>

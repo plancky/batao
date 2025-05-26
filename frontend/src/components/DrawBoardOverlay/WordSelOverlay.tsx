@@ -19,7 +19,7 @@ export function WordSelOverlay() {
 
     const gameState = useGameState();
     const {
-        data: { isArtist },
+        data: { isArtist, id: userId },
     } = useUserState();
 
     const show = gameState === GameStates.WORD_SEL;
@@ -42,12 +42,12 @@ export function WordSelOverlay() {
         const artist = Object.values(data).find((p) => p.isArtist);
         return artist!;
     }, [data]);
-    const { name } = memoizedArtist ?? {};
+    const { name, id } = memoizedArtist ?? {};
 
     return (
         <>
             <DrawBoardOverlayContainer show={show}>
-                {isArtist ? (
+                {id === userId ? (
                     <>
                         <ul className="flex w-full items-center justify-center gap-5">
                             {words.map((word, index) => (
