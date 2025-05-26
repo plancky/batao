@@ -1,9 +1,11 @@
 import { QueryClient } from "@tanstack/react-query";
 
-import { WSMessageTypes } from "@/server-types/constants";
-import { MessageData } from "@/server-types/messages";
+import { ClientAction } from "$/server-types/client-msgs";
+import { ChatMessageClass, ChatMessageTypes, ClientActionTypes } from "$/server-types/constants";
 
-import { MESSAGES_QUERY_KEY } from "./constants";
+import { MESSAGES_QUERY_KEY } from "@/lib/constants/query_keys";
+
+import { ChatMessage } from "./types";
 
 // --- WebSocket Connection ---
 export function connectWebSocket(queryClient: QueryClient, setIsConnected: (x: boolean) => void) {
@@ -47,21 +49,34 @@ export function connectWebSocket(queryClient: QueryClient, setIsConnected: (x: b
 }
 
 // --- Handle Incoming WebSocket Messages ---
-export function handleWebSocketMessage(queryClient: QueryClient, data: MessageData) {
+export function handleWebSocketMessage(queryClient: QueryClient, data: ClientAction) {
+    const { payload } = data;
     switch (data.type) {
-        case WSMessageTypes.CHAT_NEW_MESSAGE:
-            const { payload } = data;
+        case ClientActionTypes.CHAT_NEW_MESSAGE:
             // --- Update React Query Cache ---
-            // This is the core integration: update the query cache when a WS message arrives.
+            // update the query cache when a WS message arrives.
             queryClient.setQueryData(MESSAGES_QUERY_KEY, (oldData: any[] = []) => {
-                // Avoid adding duplicates if server echoes back the sender's message
-                // (Requires messages to have a unique ID)
-                // if (oldData.some(msg => msg.id === receivedMessage.id)) {
-                //     return oldData;
-                // }
                 return [...oldData, payload];
             });
             break;
+        case ClientActionTypes.PLAYER_JOINED: {
+            const { payload } = data;
+            // --- Update React Query Cache ---
+            // update the query cache when a WS message arrives.
+            const msg: ChatMessage = {
+                type: ChatMessageTypes.ADMIN,
+                msg: {
+                    id: "temp",
+                    cls: ChatMessageClass.ADMIN_GREEN,
+                    text: `${payload.name} has joined!`,
+                    timestamp: payload.join_time,
+                },
+            };
+            queryClient.setQueryData(MESSAGES_QUERY_KEY, (oldData: any[] = []) => {
+                return [...oldData, msg];
+            });
+            break;
+        }
         default:
             console.log("Unknown message type:", data.type);
     }

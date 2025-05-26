@@ -1,4 +1,4 @@
-import { type MessageData } from "@/server-types/messages";
+import { type MessageData } from "$/server-types/client-msgs";
 
 // Helper function to send messages over websocket connection
 export function sendWebSocketMessage(socket: WebSocket, data: MessageData) {

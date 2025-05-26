@@ -26,6 +26,7 @@
         "noPropertyAccessFromIndexSignature": false,
 
         // paths
+        "baseUrl": ".",
         "paths": {
             "@/shared/*": ["./shared/*"],
             "@/types/*": ["./server/types/*"],

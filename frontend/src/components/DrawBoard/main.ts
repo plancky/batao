@@ -1,4 +1,4 @@
-import { WSMessageTypes } from "@/server-types/constants";
+import { ServerActionTypes } from "$/server-types/constants";
 
 import {
     drawDot,
@@ -10,13 +10,14 @@ import {
     stopDrawingHandler,
 } from "./draw";
 import { DrawingBoardInterface } from "./types/types";
-import { connectWebSocket } from "./ws";
-import { sendWebSocketMessage } from "./wsHelpers";
+import { connectWebSocket, handleWebSocketMessage } from "./ws";
+import { sendWebSocketMessage } from "./ws-helpers";
 
 export class DrawingBoard extends DrawingBoardInterface {
     constructor(container: HTMLElement) {
         super(container);
         // Get canvas element and context
+        this.container = container;
         this.canvas = document.getElementById("drawingCanvas") as HTMLCanvasElement;
         this.ctx = this.canvas?.getContext("2d")!;
 
@@ -48,6 +49,16 @@ export class DrawingBoard extends DrawingBoardInterface {
         const ws_url = new URL("/wsgs", window.location.origin);
         ws_url.protocol = "ws";
         this.WEBSOCKET_URL = ws_url.toString();
+    }
+
+    protected makeSpectator() {
+        this.isSpectator = true;
+        this.container.classList.add("spectator");
+    }
+
+    protected makeArtist() {
+        this.isSpectator = false;
+        this.container.classList.remove("spectator");
     }
 
     protected setupButtons = () => {
@@ -86,7 +97,7 @@ export class DrawingBoard extends DrawingBoardInterface {
             // empty local draw state
             this.drawingState.pathsArray = [];
             this.sendWebSocketMessage(this.socket!, {
-                type: WSMessageTypes.CANVAS_CLEAR,
+                type: ServerActionTypes.CANVAS_CLEAR,
             });
         });
     };
@@ -140,7 +151,7 @@ export class DrawingBoard extends DrawingBoardInterface {
     protected sendWebSocketMessage = sendWebSocketMessage.bind(this);
 
     // Initial setup
-    initialize = () => {
+    initialize = (ws?: WebSocket | undefined) => {
         const { canvas, ctx } = this;
         const { canvasBackgroundColor, currentColor, currentLineWidth } = this.drawingState;
         const { pencilSizeSlider, pencilSizeValue } = this.controls;
@@ -155,11 +166,14 @@ export class DrawingBoard extends DrawingBoardInterface {
         ctx.lineWidth = currentLineWidth; // Set initial width
         ctx.strokeStyle = currentColor; // Set initial color
 
+        // disable drawing functionality unless the player is the artist
+        //this.makeSpectator();
+
         // initialise websocket connection
         try {
-            this.connectWebSocket();
+            this.connectWebSocket(ws);
         } catch (e) {
-            console.error("error occured while connecting...");
+            console.error("error occured while connecting...", e);
         }
         setTimeout(() => {
             // Resize canvas initially
@@ -186,6 +200,8 @@ export class DrawingBoard extends DrawingBoardInterface {
     protected drawSegment: DrawingBoardInterface["drawSegment"] = drawSegment.bind(this);
     protected drawDot: DrawingBoardInterface["drawDot"] = drawDot.bind(this);
     protected drawPathObj: DrawingBoardInterface["drawPathObj"] = drawPathObj.bind(this);
+
+    handleWebSocketMessage = handleWebSocketMessage.bind(this);
 
     // Clears the canvas locally (used by clear button and remote message)
     protected clearCanvasLocal() {

@@ -1,9 +1,10 @@
 // --- Drawing Logic ---
-import { WSMessageTypes } from "@/server-types/constants";
+import { CanvasActions, ServerActionTypes } from "$/server-types/constants";
+import { CanvasServerAction } from "$/server-types/server-msgs";
 
 import { type DotPathObj, type PathObj, type SegmentPathObject } from "./types/draw";
 import { PathTypes, type DrawingBoardInstanceType } from "./types/types";
-import { sendWebSocketMessage } from "./wsHelpers";
+import { sendWebSocketMessage } from "./ws-helpers";
 
 type MouseTouchEvent = MouseEvent | TouchEvent;
 // Start drawing (mouse/touch)
@@ -36,9 +37,12 @@ export function startDrawingHandler(this: DrawingBoardInstanceType, event: Mouse
 
     // Send start draw event to server
     sendWebSocketMessage(this.socket!, {
-        type: WSMessageTypes.CANVAS_DRAW,
-        ...pathObj,
-    });
+        type: ServerActionTypes.CANVAS_ACTION,
+        payload: {
+            type: CanvasActions.CANVAS_DRAW,
+            pathObj,
+        },
+    } as CanvasServerAction);
 }
 
 // Draw (mouse/touch)
@@ -73,9 +77,12 @@ export function mouseMoveHandler(this: DrawingBoardInstanceType, event: MouseTou
     [this.drawingState.lastX, this.drawingState.lastY] = [coords.x, coords.y];
 
     sendWebSocketMessage(this.socket!, {
-        type: WSMessageTypes.CANVAS_DRAW,
-        ...pathObj,
-    });
+        type: ServerActionTypes.CANVAS_ACTION,
+        payload: {
+            type: CanvasActions.CANVAS_DRAW,
+            pathObj,
+        },
+    } as CanvasServerAction);
 }
 
 // Stop drawing (mouse/touch)
@@ -87,10 +94,12 @@ export function stopDrawingHandler(this: DrawingBoardInstanceType, event: MouseT
     const ctx = this.ctx as CanvasRenderingContext2D;
 
     sendWebSocketMessage(this.socket!, {
-        type: WSMessageTypes.CANVAS_SAVE_PATHS,
-        pathsArray: btoa(JSON.stringify(this.drawingState.pathsArray)),
-        //imageData: canvas.toDataURL("image/jpeg", 0.6),
-    });
+        type: ServerActionTypes.CANVAS_ACTION,
+        payload: {
+            type: CanvasActions.CANVAS_SAVE_PATHS,
+            pathsStr: btoa(JSON.stringify(this.drawingState.pathsArray)),
+        },
+    } as CanvasServerAction);
 }
 
 // Function to get coordinates relative to the canvas

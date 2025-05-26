@@ -1,4 +1,4 @@
-import { MessageData } from "@/server-types/messages";
+import { ServerAction } from "$/server-types/client-msgs";
 
 import { PathObj } from "./draw";
 
@@ -28,6 +28,8 @@ type ControlElements = {
 export abstract class DrawingBoardInterface {
     protected WEBSOCKET_URL!: string;
     protected socket: WebSocket | null = null;
+    protected container!: HTMLElement;
+    protected isSpectator!: boolean;
     protected canvas!: HTMLCanvasElement;
     protected ctx!: CanvasRenderingContext2D;
     protected drawingState!: DrawingState;
@@ -37,12 +39,12 @@ export abstract class DrawingBoardInterface {
 
     protected abstract setupButtons(): void;
     protected abstract re_draw(): void;
-    abstract initialize(): void;
+    abstract initialize(ws: WebSocket | undefined): void;
     protected abstract resizeCanvas(): void;
     abstract eventListeners(): void;
 
     protected abstract connectWebSocket(): void;
-    protected abstract sendWebSocketMessage(socket: WebSocket, data: MessageData): void;
+    protected abstract sendWebSocketMessage(socket: WebSocket, data: ServerAction): void;
 
     protected abstract clearCanvasLocal(): void;
     protected drawDot!: (x: number, y: number, color: string, size: number) => void;

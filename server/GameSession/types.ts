@@ -1,12 +1,36 @@
-import type { WSContext, WSEvents, WSMessageReceive } from "hono/ws";
+import { EventEmitter, EventEmitterAsyncResource } from "node:events";
 
-import type { ServerWebSocket } from "bun";
+import type { Game } from "@/Game/Game";
+import type { Player } from "@/Player/Player";
 
-export abstract class GameSession {
+import type { SessionStates } from "./constants";
+
+type Events = {
+    tick: [number];
+};
+
+export abstract class GameSession extends EventEmitter<Events> {
+    config!: {
+        rounds: number;
+        turnTime: number;
+    };
+
+    state!: SessionStates;
+    game!: Game;
     sessionId!: string;
-    constructor() {}
+    players: Set<Player> = new Set();
+    owner!: Player;
+    constructor() {
+        super();
+    }
     abstract generateSessionId(): string;
+
+    // player management
+    abstract addPlayer(name: string, isowner: boolean): Player;
+    abstract broadcastMessageToAllPlayers(data: any, exempt?: Set<Player> | Player): void;
+    abstract broadcastMessage(players: Set<Player>, data: any): void;
     // ws connection callbacks
+    /*
     abstract onOpen(evt: Event, ws: WSContext<Bun.ServerWebSocket<undefined>>): void;
     abstract onMessage(
         evt: MessageEvent<WSMessageReceive>,
@@ -14,4 +38,5 @@ export abstract class GameSession {
     ): void;
     abstract onClose(evt: CloseEvent, ws: WSContext<Bun.ServerWebSocket<undefined>>): void;
     abstract onError(evt: Event, ws: WSContext<Bun.ServerWebSocket<undefined>>): void;
+    */
 }

@@ -12,7 +12,6 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as LobbyImport } from './routes/lobby'
-import { Route as AboutImport } from './routes/about'
 import { Route as IndexImport } from './routes/index'
 import { Route as RoomSessionIdImport } from './routes/room.$sessionId'
 
@@ -21,12 +20,6 @@ import { Route as RoomSessionIdImport } from './routes/room.$sessionId'
 const LobbyRoute = LobbyImport.update({
   id: '/lobby',
   path: '/lobby',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const AboutRoute = AboutImport.update({
-  id: '/about',
-  path: '/about',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -53,13 +46,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutImport
-      parentRoute: typeof rootRoute
-    }
     '/lobby': {
       id: '/lobby'
       path: '/lobby'
@@ -81,14 +67,12 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
   '/lobby': typeof LobbyRoute
   '/room/$sessionId': typeof RoomSessionIdRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
   '/lobby': typeof LobbyRoute
   '/room/$sessionId': typeof RoomSessionIdRoute
 }
@@ -96,30 +80,27 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
   '/lobby': typeof LobbyRoute
   '/room/$sessionId': typeof RoomSessionIdRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/lobby' | '/room/$sessionId'
+  fullPaths: '/' | '/lobby' | '/room/$sessionId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/lobby' | '/room/$sessionId'
-  id: '__root__' | '/' | '/about' | '/lobby' | '/room/$sessionId'
+  to: '/' | '/lobby' | '/room/$sessionId'
+  id: '__root__' | '/' | '/lobby' | '/room/$sessionId'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AboutRoute: typeof AboutRoute
   LobbyRoute: typeof LobbyRoute
   RoomSessionIdRoute: typeof RoomSessionIdRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AboutRoute: AboutRoute,
   LobbyRoute: LobbyRoute,
   RoomSessionIdRoute: RoomSessionIdRoute,
 }
@@ -135,16 +116,12 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/about",
         "/lobby",
         "/room/$sessionId"
       ]
     },
     "/": {
       "filePath": "index.tsx"
-    },
-    "/about": {
-      "filePath": "about.tsx"
     },
     "/lobby": {
       "filePath": "lobby.tsx"

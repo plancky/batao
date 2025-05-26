@@ -12,7 +12,6 @@ function RouteComponent() {
             method: "POST",
         }).then((res) => res.json());
         location.pathname = `/room/${res.id}`;
-        console.log(res);
     }, []);
     return (
         <div>

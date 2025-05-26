@@ -38,31 +38,44 @@ app.post("/gs/lobby", (c) => {
 });
 
 // Middleware to check if a session exists
-app.all("/gs/connect/:sessionId", async (c, next) => {
+app.post("/gs/connect/:sessionId", async (c, next) => {
     const { sessionId } = c.req.param();
     const session = SessionManager.getSessionById(sessionId);
     if (!session) {
-        throw new HTTPException(401, { message: "Session Not Found." });
+        throw new HTTPException(404, { message: "Session Not Found." });
     }
     c.set("session", session);
-    await next();
+    return c.json({ id: session.sessionId });
 });
 
 app.all(
     "/gs/connect/:sessionId",
     upgradeWebSocket((c) => {
         try {
-            const session: GameSession = c.get("session");
-            const { onOpen, onMessage, onClose, onError } = session;
-            return { onOpen, onMessage, onClose, onError };
+            const { sessionId } = c.req.param();
+            const session = SessionManager.getSessionById(sessionId!)!;
+            if (!session) {
+                throw new HTTPException(404, { message: "Session Not Found." });
+            }
+            const uname = c.req.query("uname");
+            if (!uname) throw new Error("Username not found");
+            const player = session.addPlayer(uname ?? "Random Player", false);
+
+            const { onOpen, onMessage, onClose, onError } = player;
+            return {
+                onOpen: onOpen.bind(player),
+                onMessage: onMessage.bind(player),
+                onClose: onClose.bind(player),
+                onError: onError.bind(player),
+            };
         } catch (e) {
-            throw new HTTPException(401, { message: "Session Not Found.", cause: e });
+            throw new HTTPException(401, { message: "Unable to create session.", cause: e });
         }
     }),
 );
 
-app.get("/wsgs", upgradeWSGSConnectionHandler);
-app.get("/chat", upgradeChatConnectionHandler);
+//app.get("/wsgs", upgradeWSGSConnectionHandler);
+//app.get("/chat", upgradeChatConnectionHandler);
 
 export default {
     fetch: app.fetch,

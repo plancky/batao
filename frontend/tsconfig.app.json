@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "composite": true,
+        "baseUrl": ".",
+        "paths": {
+            "@/components/*": ["./src/components/*"],
+            "$/server-types/*": ["../server/types/*"],
+            "@/*": ["./src/*"]
+        },
+        "strict": true,
+        "esModuleInterop": true,
+        "jsx": "react-jsx",
+        "target": "ESNext",
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "skipLibCheck": true
+    },
+    "include": ["src", "../server/types"]
+}

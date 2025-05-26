@@ -1,30 +1,60 @@
 // src/Chatroom.jsx
-import React, { Ref, useCallback, useEffect, useRef, useState } from "react";
+import React, { Ref, RefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { MESSAGES_QUERY_KEY } from "./constants";
-import { useReactQuerySubscription, useSendMessageCallback } from "./hooks";
-import { connectWebSocket } from "./ws";
+import { MESSAGES_QUERY_KEY, USER_INFO_QUERY_KEY } from "@/lib/constants/query_keys";
 
-// --- Helper function to generate a simple user ID ---
-// In a real app, this would come from authentication
-const getUserId = () => {
-    if (!sessionStorage.getItem("chatUserId")) {
-        sessionStorage.setItem("chatUserId", `User_${Math.random().toString(36).substring(2, 7)}`);
-    }
-    return sessionStorage.getItem("chatUserId")!;
-};
+import { useWS } from "../ws-provider";
+import { useSendMessageCallback } from "./hooks";
+import { Message } from "./Messages/Message";
+import type { ChatMessage } from "./types";
+import { handleWebSocketMessage } from "./ws";
+import { ClientAction } from "$/server-types/client-msgs";
+
+interface Props extends React.HTMLAttributes<HTMLElement> {}
 
 // --- The Chatroom Component ---
-export default function ChatBoard() {
-    const [userId] = useState(getUserId()); // Get or generate a user ID
-
-    const ws = useRef<WebSocket | null>(null); // Ref to hold the WebSocket instance
+export default function ChatBoard({ ...props }: Props) {
+    const {
+        ws: { raw: ws, sendMessage, addMessageEventListener },
+        isConnected,
+    } = useWS();
+    //const ws = wsRef; // Ref to hold the WebSocket instance
     const queryClient = useQueryClient(); // Get QueryClient instance
-    const { isConnected, messages } = useReactQuerySubscription(ws, queryClient);
+    // const { isConnected, messages } = useReactQuerySubscription(ws, queryClient);
+
+    useEffect(() => {
+        addMessageEventListener!((event) => {
+            const data: ClientAction = JSON.parse(event.data);
+            handleWebSocketMessage(queryClient, data);
+        });
+    }, []);
+
+    // --- Fetching / Displaying Messages using React Query ---
+    // We initialize with an empty array. Updates will come via WebSocket.
+    // `staleTime: Infinity` ensures react-query doesn't try to refetch this automatically.
+    // We are manually controlling the cache updates via WebSocket messages.
+    const { data: user_info = {} as any } = useQuery({
+        queryKey: USER_INFO_QUERY_KEY,
+        queryFn: () => [],
+        staleTime: Infinity,
+    });
+
+    const { uid, ukey, uname } = useMemo(() => {
+        const { id, key, uname } = user_info;
+        return { uid: id, ukey: key, uname };
+    }, [user_info]);
+
+    const { data: messages = [] as ChatMessage[] } = useQuery({
+        queryKey: MESSAGES_QUERY_KEY,
+        queryFn: () => [] as ChatMessage[], // Initial data function (returns empty array)
+        staleTime: Infinity, // Data is managed manually via WebSocket
+    });
 
     // --- Send Message Handler ---
-    const { handleSendMessage, newMessage, setNewMessage } = useSendMessageCallback(ws, userId);
+    const { handleSendChatMessage, newMessage, setNewMessage } = useSendMessageCallback(
+        sendMessage!,
+    );
 
     // --- Auto-scroll to bottom ---
     const messagesEndRef = useRef<HTMLDivElement>(null); // Ref to scroll to bottom
@@ -34,51 +64,30 @@ export default function ChatBoard() {
     }, [messages]); // Scroll whenever messages array changes
 
     return (
-        <div className="basis-1/5 h-full xl:mt-0 mt-5 xl:col-[right_sidebar]">
+        <div className="basis-1/5 h-full xl:mt-0 mt-5">
             <div className="chatroom h-full">
-                <div className="chatroom-header bg-gray-700 text-white border-gray-600">
+                <div className="chatroom-header bg-primary text-primary-foreground p-4 flex justify-between">
                     <div>
-                        <h2>Chat Board</h2>
-                        <span className="user-id">{userId}</span>
+                        <span className="user-id">{uname}</span>
                     </div>
-                    <div>
-                        <span className={`status `}>
-                            <div
-                                className={`h-5 w-5 ${isConnected ? "connected" : "disconnected"} block [&.connected]:bg-green-400 bg-red-500 rounded-full`}
-                                id="statusIndicator"
-                            ></div>
-                        </span>
-                    </div>
+                    <div
+                        id="conn-status"
+                        className={`status ${isConnected ? " connected" : "disconnected"} h-5 w-5 block bg-red-500 rounded-full`}
+                    ></div>
                 </div>
 
-                <div className="messages">
+                <div id="messages" className="">
                     {messages.length === 0 && (
                         <p className="no-messages">No messages yet. Start chatting!</p>
                     )}
                     {messages.map((msg, index) => (
-                        <div
-                            key={msg.id || index}
-                            className={`message ${msg.sender === userId ? "sent" : "received"}`}
-                        >
-                            <span className="sender">
-                                {msg.sender === userId ? "You" : msg.sender}:
-                            </span>
-                            <span className="text">{msg.text}</span>
-                            <span className="timestamp">
-                                {new Date(msg.timestamp).toLocaleTimeString([], {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                })}
-                            </span>
-                            {/* Optional: Display sending status for optimistic updates */}
-                            {/* {msg.status === 'sending' && <span className="status-sending"> (Sending...)</span>} */}
-                        </div>
+                        <Message msg={msg} userId={uid} />
                     ))}
                     {/* Empty div to target for scrolling */}
                     <div ref={messagesEndRef} />
                 </div>
 
-                <form className="message-input" onSubmit={handleSendMessage}>
+                <form className="message-input" onSubmit={handleSendChatMessage}>
                     <input
                         type="text"
                         value={newMessage}

@@ -1,12 +1,21 @@
-import { useEffect } from "react";
+import { RefObject, useEffect } from "react";
 
+import { DrawBoardOverlay } from "../DrawBoardOverlay";
+import { useWS } from "../ws-provider";
 import { DrawingBoard } from "./main";
 
-export default function DrawBoard({ ...props }) {
+interface Props extends React.HTMLAttributes<HTMLElement> {}
+
+export default function DrawBoard({ ...props }: Props) {
+    const {
+        ws: { raw: ws },
+        isConnected,
+    } = useWS();
+
     useEffect(() => {
         const handleContentLoaded = () => {
             const drawAPI = new DrawingBoard(document.querySelector("#drawContainer")!);
-            drawAPI.initialize();
+            drawAPI.initialize(ws!.current);
         };
 
         if (document.readyState !== "loading") {
@@ -19,23 +28,29 @@ export default function DrawBoard({ ...props }) {
         return () => {
             document.removeEventListener("DOMContentLoaded", handleContentLoaded);
         };
-    }, []);
+    }, [ws]);
 
     return (
         <>
             <div
                 id="drawContainer"
-                className="flex flex-col w-full max-h-screen flex-1 basis-4/5 gap-5"
+                className="flex flex-col w-full max-h-screen gap-5 "
             >
                 <div className="w-full bg-gray-900 relative aspect-video #h-full #flex-1 rounded-lg shadow-lg overflow-hidden border border-gray-600">
-                    <canvas id="drawingCanvas" className="rounded-lg"></canvas>
-                    <div
-                        className="h-5 w-5 block [&.connected]:bg-green-400 bg-red-500 rounded-full absolute right-5 top-5"
-                        id="statusIndicator"
-                    ></div>
+                    <DrawBoardOverlay />
+                    <canvas
+                        id="drawingCanvas"
+                        className="rounded-lg [.spectator_&]:pointer-events-none"
+                    ></canvas>
+                    {/*
+                        <div
+                            className="h-5 w-5 block [&.connected]:bg-green-400 bg-red-500 rounded-full absolute right-5 top-5"
+                            id="statusIndicator"
+                        ></div>
+                        */}
                 </div>
 
-                <div className="controls relative w-full bg-gray-700 p-4 rounded-lg shadow-md flex flex-wrap items-center justify-center gap-3 md:gap-4  border border-gray-600">
+                <div className="controls [.spectator_&]:hidden relative w-full bg-gray-700 p-4 rounded-lg shadow-md flex flex-wrap items-center justify-center gap-3 md:gap-4  border border-gray-600">
                     <div className="flex gap-2 w-full items-center flex-wrap justify-center">
                         <span className="text-sm font-medium text-gray-300 mr-2">Color:</span>
                         <button

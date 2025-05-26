@@ -1,4 +1,4 @@
-import { resolve } from "node:path";
+import path, { resolve } from "node:path";
 import { fileURLToPath, URL } from "node:url";
 import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
 
@@ -20,10 +20,10 @@ export default defineConfig({
         react(),
     ],
     resolve: {
-        alias: [
-            { find: "@/server-types", replacement: resolve(__dirname, "../server/types/") },
-            { find: "@", replacement: resolve(__dirname, "./src") },
-        ],
+        alias: {
+            "@": path.resolve(__dirname, "./src"),
+            "$/server-types": resolve(__dirname, "../server/types"),
+        },
     },
     server: {
         proxy: {
