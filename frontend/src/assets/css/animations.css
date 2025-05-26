@@ -1,0 +1,30 @@
+@keyframes bounce-slow {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+@keyframes fade-in-out {
+    0%,
+    100% {
+        opacity: 0;
+        transform: translate(-50%, 0) scale(0.8);
+    }
+    10%,
+    90% {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(1);
+    }
+}
+
+.animate-bounce-slow {
+    animation: bounce-slow 3s infinite ease-in-out;
+}
+
+.animate-fade-in-out {
+    animation: fade-in-out 7s infinite ease-in-out; /* Matches message interval */
+}
