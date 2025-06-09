@@ -106,10 +106,13 @@
 
 @utility game-session-layout-xl {
     grid-template-columns: [left-sidebar-start] 15% [left-sidebar-end main-start] 65% [main-end right-sidebar-start] 20% [right-sidebar-end];
+    grid-template-rows: repeat(1, minmax(0, 1fr));
 }
 
 @utility game-session-layout-mobile {
-    grid-template-columns: [full-start left-half-start] 50% [left-half-end right-half-start] 50% [full-end right-half-end];
+    grid-template-columns: [full-start left-half-start] 40% [left-half-end right-half-start] 60% [full-end right-half-end];
+    grid-template-rows: minmax(0, auto) minmax(0,1fr);
+    gap: 8px;
 }
 
 @layer base {

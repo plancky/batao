@@ -102,15 +102,15 @@ export function GameSettingsOverlay() {
     return (
         <>
             <DrawBoardOverlayContainer show={show}>
-                <div className="text-secondary-foreground bg-secondary/80 flex h-full w-full flex-col items-center p-10">
+                <div className="text-secondary-foreground bg-secondary/80 flex h-full w-full flex-col flex-wrap items-center p-10 max-h-full overflow-scroll">
                     <Form {...form}>
-                        <form onSubmit={form.handleSubmit(onSubmit)} className="w-1/3 space-y-6">
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="xl:w-1/3 w-full space-y-6">
                             <FormField
                                 control={form.control}
                                 name="drawtime"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <div className="flex w-full justify-between">
+                                        <div className="flex w-full justify-between gap-10">
                                             <FormLabel>Drawtime</FormLabel>
                                             <Select
                                                 onValueChange={field.onChange}
@@ -139,7 +139,7 @@ export function GameSettingsOverlay() {
                                 name="rounds"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <div className="flex w-full justify-between">
+                                        <div className="flex w-full justify-between gap-10">
                                             <FormLabel>Rounds</FormLabel>
                                             <Select
                                                 onValueChange={field.onChange}
@@ -168,7 +168,7 @@ export function GameSettingsOverlay() {
                                 name="hints"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <div className="flex w-full justify-between">
+                                        <div className="flex w-full justify-between gap-10">
                                             <FormLabel>Hints</FormLabel>
                                             <Select
                                                 onValueChange={field.onChange}
@@ -197,7 +197,7 @@ export function GameSettingsOverlay() {
                                 name="words"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <div className="flex w-full justify-between">
+                                        <div className="flex w-full justify-between gap-10">
                                             <FormLabel>Words</FormLabel>
                                             <Select
                                                 onValueChange={field.onChange}
@@ -226,7 +226,7 @@ export function GameSettingsOverlay() {
                                 name="wordlist"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <div className="flex w-full justify-between">
+                                        <div className="flex w-full justify-between gap-10">
                                             <FormLabel>Word List</FormLabel>
                                             <Select
                                                 onValueChange={field.onChange}

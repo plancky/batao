@@ -49,7 +49,7 @@ export function Game() {
                     </div>
                 </div>
             ) : (
-                <div className="game-session-layout-mobile xl:game-session-layout-xl grid h-full min-h-screen grid-rows-1 py-10 text-white xl:max-h-screen xl:gap-5">
+                <div className="game-session-layout-mobile xl:game-session-layout-xl grid h-full min-h-screen py-10 xl:max-h-screen xl:gap-5">
                     <MainArea />
                     <div className="col-[left-half] row-span-1 row-start-2 xl:col-[left-sidebar] xl:row-start-1">
                         <LeftSidebar />

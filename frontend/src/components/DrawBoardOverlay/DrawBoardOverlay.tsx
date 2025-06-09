@@ -21,7 +21,7 @@ interface Props extends React.HTMLAttributes<HTMLElement> {
 export function DrawBoardOverlayContainer({ show, children }: Props) {
     return (
         <div
-            className={`absolute inset-0 z-10 h-full w-full backdrop-blur-2xl ${show ? "flex" : "hidden"}`}
+            className={`absolute inset-0 z-10 h-full w-full backdrop-blur-2xl max-h-full overflow-scroll ${show ? "flex" : "hidden"}`}
         >
             {children}
         </div>

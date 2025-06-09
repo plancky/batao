@@ -49,7 +49,7 @@ export default function ChatBoard({ ...props }: Props) {
     }, [messages]); // Scroll whenever messages array changes
 
     return (
-        <div className="basis-1/5 h-full xl:mt-0 mt-5">
+        <div className="basis-1/5 h-full">
             <div className="chatroom h-full">
                 <div className="chatroom-header bg-primary/10 p-4 flex justify-between">
                     <div>

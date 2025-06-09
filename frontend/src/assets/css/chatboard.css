@@ -13,15 +13,15 @@
 }
 
 #messages {
-    @apply flex-1 overflow-y-auto flex flex-col gap-0 bg-primary/10 w-full;
+    @apply bg-primary/10 flex w-full flex-1 flex-col gap-0 overflow-y-auto;
 }
 
 .no-messages {
-    @apply text-center my-auto;
+    @apply my-auto text-center;
 }
 
 .message {
-    @apply py-1 leading-0 px-4 border-b border-secondary/50 first:border-t;
+    @apply leading-0 border-secondary/50 border-b px-4 py-1 first:border-t;
 
     word-wrap: break-word; /* Ensure long words break */
 
@@ -55,7 +55,7 @@
 }
 
 .message .text {
-    @apply text-sm mr-2 wrap-normal text-wrap;
+    @apply wrap-normal mr-2 text-wrap text-sm;
 }
 
 .message .timestamp {
@@ -70,25 +70,26 @@
     @apply bg-primary text-primary-foreground;
     display: flex;
     padding: 10px;
-}
 
-.message-input input {
-    @apply rounded-(--radius) p-2;
-    flex-grow: 1;
-    margin-right: 10px;
-}
+    & input {
+        @apply rounded-(--radius) p-2 flex-1 min-w-0;
+        flex-basis: 70%;
+        margin-right: 10px;
+    }
 
-.message-input input:disabled {
-    background-color: #e9ecef;
-    cursor: not-allowed;
-}
+    & input:disabled {
+        background-color: #e9ecef;
+        cursor: not-allowed;
+    }
 
-.message-input button {
-    @apply rounded-(--radius-sm) border p-2 cursor-pointer hover:bg-secondary/40 bg-secondary text-secondary-foreground not-disabled:hover:text-primary-foreground;
-    transition: background-color 0.2s;
-}
+    & button {
+        @apply flex-1 rounded-(--radius-sm) hover:bg-secondary/40 bg-secondary text-secondary-foreground not-disabled:hover:text-primary-foreground cursor-pointer border p-2;
+        flex: auto;
+        transition: background-color 0.2s;
+    }
 
-.message-input button:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
+    & button:disabled {
+        background-color: #cccccc;
+        cursor: not-allowed;
+    }
 }
